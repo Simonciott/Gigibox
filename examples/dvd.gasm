@@ -1,0 +1,77 @@
+; carica texture e crea sprite
+str $0 " dvd "
+mov a $0
+mov b $7
+int $2
+mov a $b
+inc
+mov b $a
+dec
+int $3 ; crea sprite (indice texture 7 posizione sprite 8)
+
+; rendi sprite visibile
+mov a $b
+add $3
+mov $a $1 ;data[a] = 1
+
+mov a $b ;a = 8
+
+add 1
+mov b $a ; b = &x
+
+mov $9 $10 ; impostazione posizioni
+mov $10 $32
+
+; crea variabili direzione/velocità (x, y) e indirizzo proprietà x
+mal $2 ; data[12]
+mal $2 ; data[13]
+
+; impostazione variabile indirizzo x
+;add 1
+;mal $a ; data[14] = 9
+
+;loop
+;controlla se ha colpito il muro orizzontale
+mov a 9
+cmp $90
+jl $44 ; se non è maggiore uguale
+; colpito muro orizzontale
+mov a 12 ; modifica velocità
+mul $-1
+mov $12 $a
+jmp $48
+
+; se ha colpito l'altro muro o non
+cmp $0
+jne $48
+;colpito altro muro
+jmp $38
+
+
+; controlla muro verticale
+mov a 10
+cmp $92
+jl $60
+
+mov a 13
+mul $-1
+mov $13 $a
+jmp $64
+
+cmp $0
+jne $64
+
+jmp $55
+; movimento
+mov a 9
+mov b 12
+add $b
+mov $9 $a
+
+mov a 10
+mov b 13
+add $b
+mov $10 $a
+
+int $0
+jmp $31
