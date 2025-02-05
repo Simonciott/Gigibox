@@ -76,10 +76,10 @@ memory.push_back(value);
 - Arguments: 1
     1. value: The address where register A should be stored
 - Usage:
-    - `lda $6 ; stores register A at address 6`
-    - `lda 5 ; stores register A at the address stored in address 5`
-    - `lda $b ; stores register A at the address stored in register B`
-    - `lda %$b ; stores register A at the address stored in the address stored in register B`
+    - `sta $6 ; stores register A at address 6`
+    - `sta 5 ; stores register A at the address stored in address 5`
+    - `sta $b ; stores register A at the address stored in register B`
+    - `sta %$b ; stores register A at the address stored in the address stored in register B`
 - C++ equivalent:
 ```cpp
 *value = a;
