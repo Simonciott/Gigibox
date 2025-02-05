@@ -138,7 +138,10 @@ a += value;
 - Arguments: 0
 - Usage:
     - `dec ; self explainatory`
-- C++ equivalent:<pre>a++;</pre>
+- C++ equivalent:
+```cpp
+a--;
+```
 ## DIV
 - Description: Divides register A by the value of the argument
 - Arguments: 1
