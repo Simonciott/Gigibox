@@ -40,12 +40,8 @@ int main(int argc, const char* argv[])
 {
     const char* programscript = argc < 2 ? "./dvd.gasm" : argv[1];
 
-    //Gigi_BackBufferT->update
-
     // sprite per metterci sopra il buffer sotto forma di texture
     Sprite Gigi_BackBufferSprite(Gigi_BackBufferTexture::texture);
-
-    //Gigi_BackBufferSprite.setTexture(*Gigi_BackBufferT);
 
     sf::RenderWindow window(sf::VideoMode({ SCREEN_WIDTH * SCREEN_SCALE, SCREEN_HEIGHT * SCREEN_SCALE }), "GigiBox");
 
@@ -65,7 +61,8 @@ int main(int argc, const char* argv[])
         }
     }
 
-    uint8_t img_data[] = { 0x08, 0x08, 0x02, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0x00, 0xff, 0x00, 0x01, 0x02,
+    /* RIP dato immagine manualmente scritto
+    uint8_t img_data[] = {0x08, 0x08, 0x02, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0x00, 0xff, 0x00, 0x01, 0x02,
             0x02, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x02,
             0x02, 0x00, 0x01, 0x01, 0x01, 0x01, 0x01, 0x00, 0x02,
             0x00, 0x01, 0x01, 0x00, 0x01, 0x00, 0x01, 0x01, 0x00,
@@ -75,10 +72,7 @@ int main(int argc, const char* argv[])
             0x00, 0x01, 0x01, 0x00, 0x00, 0x00, 0x01, 0x01, 0x00,
             0x02, 0x00, 0x01, 0x01, 0x01, 0x01, 0x01, 0x00, 0x02,
             0x02, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x02
-    };
-
-    //Gigi_Image img(img_data, 95);
-    //Gigi_Sprite spr(img);
+    };*/
 
     Gigi_AssemblyRegisters::AddRegistersToData();
 
@@ -96,6 +90,8 @@ int main(int argc, const char* argv[])
         }
         programstream.close();
     }
+    if(Gigi_AssemblyInterpreter::programInstructions.empty())
+        cout << "GIGIBOX WARNING:\n\tIN:\tmain()" << "\n\tDESCRIZIONE AVVERTIMENTO (potrebbe non essere accurato):\tNon sono state caricate alcune istruzioni al programma, causato probabilmente da script mancanti o inesistenti\n\tPROCEDURE:\tNon verra' eseguito alcun programma. Riavviare Gigibox se si desidera eseguirne uno\n\n";
     
 
     while (window.isOpen())
@@ -109,9 +105,16 @@ int main(int argc, const char* argv[])
         Gigi_AssemblyRegisters::interrupted = !Gigi_AssemblyInterpreter::running;
 
         while (!Gigi_AssemblyRegisters::interrupted) {
+            //cout << Gigi_AssemblyInterpreter::programInstructions[Gigi_AssemblyRegisters::programCounter] << endl;
             Gigi_AssemblyInterpreter::StepProgram();
+
+            //cout << Gigi_AssemblyRegisters::programCounter << endl << endl;;
+
+            /*for (int i = 0; i < Gigi_AssemblyRegisters::data.size(); i++) {
+                cout << *Gigi_AssemblyRegisters::getData(i - REGISTERS_IN_MEMORY) << endl;
+            }*/
+            //cout << "\n\nfine stampa\n\n";
         }
-        //window.clear();
 
         Gigi_BackBufferTexture::clearBackBuffer(Color::Black);
 

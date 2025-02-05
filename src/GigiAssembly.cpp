@@ -14,6 +14,8 @@
 
 // GigiRegisters
 
+//enum Gigi_LogicalFlags;
+
 
 unsigned long Gigi_AssemblyRegisters::programCounter = 0;
 

@@ -28,7 +28,6 @@ void Gigi_Sprite::Draw(int x, int y) {
 
 	for (int i = 0; i < texture->height; i++) {
 		for (int j = 0; j < texture->width; j++) {
-			//cout << "palette " << texture->pixels[texture->width * (i - 1) + j] << endl;
 			int pxindex = texture->pixels[texture->width * i + j];
 			if (pxindex >= texture->palette.size()) pxindex = 0;
 			Color color = texture->palette[pxindex];

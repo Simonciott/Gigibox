@@ -102,6 +102,8 @@ map<string, function<void()>> asmInstructions = { // assegnazione instruzioni as
 
                     if (!stream.is_open() || stream.fail()) throw 0b11100000;
 
+                    //cout << stream.is_open() << endl << stream.bad() << endl << stream.fail() << endl;
+
                     string filedata;
 
                     unsigned char charbuffer;
