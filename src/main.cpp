@@ -9,12 +9,15 @@
 #include <functional>
 //#include <stack>
 
-#include "GigiConstants.hpp"
-#include "GigiBuffers.hpp"
-#include "GigiTexture.hpp"
-#include "GigiSprite.hpp"
+#include "Constants.hpp"
+#include "Buffers.hpp"
+#include "Texture.hpp"
+#include "Sprite.hpp"
 
 #include "GigiAssembly.hpp"
+#include "Input.hpp"
+
+using namespace Gigi;
 
 using std::map;
 using std::string;
@@ -30,7 +33,6 @@ using std::stoi;
 //using std::stack;
 
 using sf::Image;
-using sf::Sprite;
 using sf::Color;
 using sf::Texture;
 using sf::Vector2f;
@@ -41,7 +43,7 @@ int main(int argc, const char* argv[])
     const char* programscript = argc < 2 ? "./dvd.gasm" : argv[1];
 
     // sprite per metterci sopra il buffer sotto forma di texture
-    Sprite Gigi_BackBufferSprite(Gigi_BackBufferTexture::texture);
+    sf::Sprite Gigi_BackBufferSprite(BuffersManager::texture);
 
     sf::RenderWindow window(sf::VideoMode({ SCREEN_WIDTH * SCREEN_SCALE, SCREEN_HEIGHT * SCREEN_SCALE }), "GigiBox");
 
@@ -50,13 +52,13 @@ int main(int argc, const char* argv[])
 
     for (int i = 0; i < SCREEN_HEIGHT; i++) {
         for (int j = 0; j < SCREEN_WIDTH; j++) {
-            Gigi_BackBufferTexture::getBackBuffer()->setPixel({ (unsigned int)j, (unsigned int)i }, Color(j, (i + j) / 2, i));
+            BuffersManager::getBackBuffer()->setPixel({ (unsigned int)j, (unsigned int)i }, Color(j, (i + j) / 2, i));
         }
     }
 
     for (int i = 0; i < SCREEN_HEIGHT; i++) {
         for (int j = 0; j < SCREEN_WIDTH; j++) {
-            Gigi_BackBufferTexture::getBuffer()->setPixel({ (unsigned int)j, (unsigned int)i }, Color((i + j) / 2, i, j));
+            BuffersManager::getBuffer()->setPixel({ (unsigned int)j, (unsigned int)i }, Color((i + j) / 2, i, j));
             //Gigi_BackBufferTexture::getBackBuffer()->setPixel({ (unsigned int)j, (unsigned int)i }, Color(j, (i + j) / 2, i));
         }
     }
@@ -74,7 +76,7 @@ int main(int argc, const char* argv[])
             0x02, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x02
     };*/
 
-    Gigi_AssemblyRegisters::AddRegistersToData();
+    Assembly::Registers::AddRegistersToData();
 
     // scoped code block
     if (1) {
@@ -86,11 +88,11 @@ int main(int argc, const char* argv[])
             int com = line.find(";");
             if (com != string::npos) line.erase(com, line.size());
 
-            Gigi_AssemblyInterpreter::programInstructions.push_back(line);
+            Assembly::Interpreter::programInstructions.push_back(line);
         }
         programstream.close();
     }
-    if(Gigi_AssemblyInterpreter::programInstructions.empty())
+    if(Assembly::Interpreter::programInstructions.empty())
         cout << "GIGIBOX WARNING:\n\tIN:\tmain()" << "\n\tDESCRIZIONE AVVERTIMENTO (potrebbe non essere accurato):\tNon sono state caricate alcune istruzioni al programma, causato probabilmente da script mancanti o inesistenti\n\tPROCEDURE:\tNon verra' eseguito alcun programma. Riavviare Gigibox se si desidera eseguirne uno\n\n";
     
 
@@ -100,13 +102,23 @@ int main(int argc, const char* argv[])
         {
             if (event->is<sf::Event::Closed>())
                 window.close();
+            // NON TESTATO. PER FAVORE TESTARE
+            *Assembly::Registers::getData(-4) = (
+                (int)Input::Up.isEitherDown() << 7 +
+                (int)Input::Left.isEitherDown() << 6 +
+                (int)Input::Down.isEitherDown() << 5 +
+                (int)Input::Right.isEitherDown() << 4 +
+                (int)Input::Zed.isEitherDown() << 3 +
+                (int)Input::Ex.isEitherDown() << 2 +
+                (int)Input::Cee.isEitherDown() << 1
+            );
         }
 
-        Gigi_AssemblyRegisters::interrupted = !Gigi_AssemblyInterpreter::running;
+        Assembly::Registers::interrupted = !Assembly::Interpreter::running;
 
-        while (!Gigi_AssemblyRegisters::interrupted) {
+        while (!Assembly::Registers::interrupted) {
             //cout << Gigi_AssemblyInterpreter::programInstructions[Gigi_AssemblyRegisters::programCounter] << endl;
-            Gigi_AssemblyInterpreter::StepProgram();
+            Assembly::Interpreter::StepProgram();
 
             //cout << Gigi_AssemblyRegisters::programCounter << endl << endl;;
 
@@ -116,14 +128,14 @@ int main(int argc, const char* argv[])
             //cout << "\n\nfine stampa\n\n";
         }
 
-        Gigi_BackBufferTexture::clearBackBuffer(Color::Black);
+        BuffersManager::clearBackBuffer(Color::Black);
 
-        for (int i = 0; i < Gigi_AssemblyRegisters::storedSprites.size(); i++) {
-            Gigi_Sprite& spr = Gigi_AssemblyRegisters::storedSprites[i];
+        for (int i = 0; i < Assembly::Registers::storedSprites.size(); i++) {
+            Sprite& spr = Assembly::Registers::storedSprites[i];
             spr.Draw(spr.x, spr.y);
         }
 
-        Gigi_BackBufferTexture::swapBuffers();
+        BuffersManager::swapBuffers();
 
         window.draw(Gigi_BackBufferSprite);
         window.display();

@@ -8,13 +8,15 @@
 
 #include "GigiAssembly.hpp"
 
+using namespace Gigi::Assembly;
+
 // le funzioni che poi vengono chiamate dall'interprete per eseguire una specifica istruzione
 map<string, function<void()>> asmInstructions = { // assegnazione instruzioni asm
     {
         "mov",
         []() {
             int where = getArgFromTop(1); // il dato che viene trasferito
-            short* to = Gigi_AssemblyRegisters::getData(getArgFromTop(0)); // dove viene trasferito il dato
+            short* to = Registers::getData(getArgFromTop(0)); // dove viene trasferito il dato
 
             // to = where
             *to = where;
@@ -23,37 +25,37 @@ map<string, function<void()>> asmInstructions = { // assegnazione instruzioni as
     {
         "add",
         []() {
-            *Gigi_AssemblyRegisters::getData(-1) += getArgFromTop(0);
+            *Registers::getData(-1) += getArgFromTop(0);
         }
     },
     {
         "sub",
         []() {
-            *Gigi_AssemblyRegisters::getData(-1) -= getArgFromTop(0);
+            *Registers::getData(-1) -= getArgFromTop(0);
         }
     },
     {
         "mul",
         []() {
-            *Gigi_AssemblyRegisters::getData(-1) *= getArgFromTop(0);
+            *Registers::getData(-1) *= getArgFromTop(0);
         }
     },
     {
         "div",
         []() {
-            *Gigi_AssemblyRegisters::getData(-1) /= getArgFromTop(0);
+            *Registers::getData(-1) /= getArgFromTop(0);
         }
     },
     {
         "mod", // modulo
         []() {
-            *Gigi_AssemblyRegisters::getData(-1) %= getArgFromTop(0);
+            *Registers::getData(-1) %= getArgFromTop(0);
         }
     },
     {
         "jmp", // salto incondizionale
         []() {
-            Gigi_AssemblyRegisters::programCounter = getArgFromTop(0) - 1; // non so perché cazzo serve il - 1 ma NON TOCCARE per favore :(
+            Registers::programCounter = getArgFromTop(0) - 1; // non so perché cazzo serve il - 1 ma NON TOCCARE per favore :(
             // a volte la mia mente da genio è incomprensibile pure al me del futuro
             // ah ora ho capito perché (dopo quasi una settimana). dopo il compimento di questa istruzione il program counter viene incrementato e senza la negazione dell'incremento salterebbe una riga in più
             // persone a caso su github che leggono come stia parlando con me stesso tutto sto tempo pensando stia impazzendo
@@ -62,38 +64,38 @@ map<string, function<void()>> asmInstructions = { // assegnazione instruzioni as
     {
         "cmp", // compara il registro A con il primo argomento
         []() {
-            Gigi_AssemblyRegisters::Compare(getArgFromTop(0));
+            Registers::Compare(getArgFromTop(0));
         }
     },
     {
         "lda", // carica dati al registro A
         []() {
-            *Gigi_AssemblyRegisters::getData(-1) = getArgFromTop(0);
+            *Registers::getData(-1) = getArgFromTop(0);
         }
     },
     {
         "sta", // salva il contenuto di A a un indirizzo
         []() {
-            *Gigi_AssemblyRegisters::getData(getArgFromTop(0)) = *Gigi_AssemblyRegisters::getData(-1);
+            *Registers::getData(getArgFromTop(0)) = *Registers::getData(-1);
         }
     },
     {
         "int", // interrompe l'interpretazione per continuare il ciclo in main
         []() {
-            Gigi_AssemblyRegisters::interrupted = true;
+            Registers::interrupted = true;
 
             switch (getArgFromTop(0)) {
             default:
                 break;
             case 1: { // stampa un messaggio dalla memoria. registro A: indirizzo stringa.
-                string buf = formatDataString(*Gigi_AssemblyRegisters::getData(-1));
+                string buf = formatDataString(*Registers::getData(-1));
 
                 cout << buf;
                 break;
             }
             case 2: { // crea una texture caricando i dati di un file a percorso dato da una stringa data.
                 // registro A: indirizzo stringa nome file. registro B: indirizzo salvataggio texture
-                string buf = formatDataString(*Gigi_AssemblyRegisters::getData(-1));
+                string buf = formatDataString(*Registers::getData(-1));
 
                 try {
                     fstream stream;
@@ -129,15 +131,15 @@ map<string, function<void()>> asmInstructions = { // assegnazione instruzioni as
                         data[i] = filedata[i];
                     }
 
-                    Gigi_AssemblyRegisters::storedImages.push_back(Gigi_Image(data));
+                    Registers::storedImages.push_back(Image(data));
 
-                    int textureIndex = Gigi_AssemblyRegisters::storedImages.size() - 1;
-                    Gigi_Image* textureref = &Gigi_AssemblyRegisters::storedImages[textureIndex];
+                    int textureIndex = Registers::storedImages.size() - 1;
+                    Image* textureref = &Registers::storedImages[textureIndex];
 
                     // aggiunta dati riconoscimento al vettore
-                    int textreDataIndex = *Gigi_AssemblyRegisters::getData(-2);
-                    Gigi_AssemblyRegisters::createMemoryIfNone(textreDataIndex);
-                    *Gigi_AssemblyRegisters::getData(textreDataIndex) = textureIndex;
+                    int textreDataIndex = *Registers::getData(-2);
+                    Registers::createMemoryIfNone(textreDataIndex);
+                    *Registers::getData(textreDataIndex) = textureIndex;
 
                     stream.close();
                 }
@@ -149,16 +151,16 @@ map<string, function<void()>> asmInstructions = { // assegnazione instruzioni as
             }
             case 3: { // crea uno sprite. registro A: indice texture. B: indirizzo salvataggio dei dati sprite nel vettore. ~~C: visibilità sprite alla creazione~~
                 try {
-                    int txtind = *Gigi_AssemblyRegisters::getData(*Gigi_AssemblyRegisters::getData(-1));
-                    Gigi_AssemblyRegisters::storedSprites.push_back(Gigi_Sprite(Gigi_AssemblyRegisters::storedImages[txtind]));
-                    int last = Gigi_AssemblyRegisters::storedSprites.size() - 1;
+                    int txtind = *Registers::getData(*Registers::getData(-1));
+                    Registers::storedSprites.push_back(Gigi_Sprite(Registers::storedImages[txtind]));
+                    int last = Registers::storedSprites.size() - 1;
 
                     // salvataggio sprite nel vettore
-                    Gigi_Sprite* sprRef = &Gigi_AssemblyRegisters::storedSprites[last];
-                    Gigi_AssemblyRegisters::createMemoryIfNone(*Gigi_AssemblyRegisters::getData(-2) + 3);
-                    short* sprDataIndx = Gigi_AssemblyRegisters::getData(*Gigi_AssemblyRegisters::getData(-2)); // riferenza all'indirizzo in data dove lo sprite verrà salvato
+                    Gigi_Sprite* sprRef = &Registers::storedSprites[last];
+                    Registers::createMemoryIfNone(*Registers::getData(-2) + 3);
+                    short* sprDataIndx = Registers::getData(*Registers::getData(-2)); // riferenza all'indirizzo in data dove lo sprite verrà salvato
 
-                    *sprDataIndx = *Gigi_AssemblyRegisters::getData(-1); // indice texure
+                    *sprDataIndx = *Registers::getData(-1); // indice texure
                     sprRef->xHook = (sprDataIndx + 1);
                     sprRef->yHook = (sprDataIndx + 2);
                     sprRef->visibleHook = (bool*)(sprDataIndx + 3);
@@ -177,55 +179,55 @@ map<string, function<void()>> asmInstructions = { // assegnazione instruzioni as
     {
         "je",
         []() {
-            if ((Gigi_AssemblyRegisters::logicalFlag & 0b01000000) == 0b01000000)
-                Gigi_AssemblyRegisters::programCounter = getArgFromTop(0) - 1;
+            if ((Registers::logicalFlag & 0b01000000) == 0b01000000)
+                Registers::programCounter = getArgFromTop(0) - 1;
         }
     },
     {
         "jne",
         []() {
-            if ((Gigi_AssemblyRegisters::logicalFlag & 0b01000000) == 0b00000000)
-                Gigi_AssemblyRegisters::programCounter = getArgFromTop(0) - 1;
+            if ((Registers::logicalFlag & 0b01000000) == 0b00000000)
+                Registers::programCounter = getArgFromTop(0) - 1;
         }
     },
     {
         "jg",
         []() {
-            if ((Gigi_AssemblyRegisters::logicalFlag & 0b00100000) == 0b00100000)
-                Gigi_AssemblyRegisters::programCounter = getArgFromTop(0) - 1;
+            if ((Registers::logicalFlag & 0b00100000) == 0b00100000)
+                Registers::programCounter = getArgFromTop(0) - 1;
         }
     },
     {
         "jge",
         []() {
-            if ((Gigi_AssemblyRegisters::logicalFlag & 0b00100000) == 0b00100000 || (Gigi_AssemblyRegisters::logicalFlag & 0b01000000) == 0b01000000)
-                Gigi_AssemblyRegisters::programCounter = getArgFromTop(0) - 1;
+            if ((Registers::logicalFlag & 0b00100000) == 0b00100000 || (Registers::logicalFlag & 0b01000000) == 0b01000000)
+                Registers::programCounter = getArgFromTop(0) - 1;
         }
     },
     {
         "jl",
         []() {
-            if ((Gigi_AssemblyRegisters::logicalFlag & 0b01100000) == 0b00000000)
-                Gigi_AssemblyRegisters::programCounter = getArgFromTop(0) - 1;
+            if ((Registers::logicalFlag & 0b01100000) == 0b00000000)
+                Registers::programCounter = getArgFromTop(0) - 1;
         }
     },
     {
         "jle",
         []() {
-            if ((Gigi_AssemblyRegisters::logicalFlag & 0b01100000) == 0b00000000 || (Gigi_AssemblyRegisters::logicalFlag & 0b01000000) == 0b00000000)
-                Gigi_AssemblyRegisters::programCounter = getArgFromTop(0) - 1;
+            if ((Registers::logicalFlag & 0b01100000) == 0b00000000 || (Registers::logicalFlag & 0b01000000) == 0b00000000)
+                Registers::programCounter = getArgFromTop(0) - 1;
         }
     },
     {
         "lsa", // last address: imposta il valore di A a l'ultimo indirizzo di memoria disponibile nella matrice
         []() {
-            *Gigi_AssemblyRegisters::getData(-1) = Gigi_AssemblyRegisters::data.size() - REGISTERS_IN_MEMORY - 1;
+            *Registers::getData(-1) = Registers::data.size() - REGISTERS_IN_MEMORY - 1;
         }
     },
     {
         "mal", // memory allocation: alloca memoria nel vettore dati
         []() {
-            Gigi_AssemblyRegisters::data.push_back(getArgFromTop(0));
+            Registers::data.push_back(getArgFromTop(0));
         }
     },
     {
@@ -233,7 +235,7 @@ map<string, function<void()>> asmInstructions = { // assegnazione instruzioni as
         []() {
             int c = getArgFromTop(0);
             for (int i = 0; i < c; i++)
-                Gigi_AssemblyRegisters::data.push_back(0);
+                Registers::data.push_back(0);
         }
     },
     {
@@ -246,7 +248,7 @@ map<string, function<void()>> asmInstructions = { // assegnazione instruzioni as
             string buffer = getArgFromTopStr(index);
 
             if (buffer != "\"") { // duplicazione stringa
-                Gigi_AssemblyRegisters::createMemoryIfNone(getArgFromTop(0) + *Gigi_AssemblyRegisters::getData(getArgFromTop(1)));
+                Registers::createMemoryIfNone(getArgFromTop(0) + *Registers::getData(getArgFromTop(1)));
 
                 formatStringData(getArgFromTop(0), formatDataString(getArgFromTop(1)));
             }
@@ -258,70 +260,70 @@ map<string, function<void()>> asmInstructions = { // assegnazione instruzioni as
 
                     int toAl = buffer.size();
                     if (index > 2) {
-                        *Gigi_AssemblyRegisters::getData(pos + size + 1) = ' ';
+                        *Registers::getData(pos + size + 1) = ' ';
                         toAl++;
                     }
-                    Gigi_AssemblyRegisters::createMemoryIfNone(toAl);
+                    Registers::createMemoryIfNone(toAl);
 
                     for (int i = 0; i < buffer.size(); i++) {
-                        *Gigi_AssemblyRegisters::getData(pos + 1 + i) = buffer[i];
+                        *Registers::getData(pos + 1 + i) = buffer[i];
                     }
 
                     size += buffer.size();
                     index++;
                     buffer = getArgFromTopStr(index);
                 }
-                *Gigi_AssemblyRegisters::getData(pos) = size;
+                *Registers::getData(pos) = size;
             }
         }
     },
     {
         "inc", // incrementa A
         []() {
-            *Gigi_AssemblyRegisters::getData(-1) += 1;
+            *Registers::getData(-1) += 1;
         }
     },
     {
         "dec", // decrementa A
         []() {
-            *Gigi_AssemblyRegisters::getData(-1) -= 1;
+            *Registers::getData(-1) -= 1;
         }
     },
     {
         "and", // A = A & primo argomento
         []() {
-            *Gigi_AssemblyRegisters::getData(-1) &= getArgFromTop(0);
+            *Registers::getData(-1) &= getArgFromTop(0);
         }
     },
     {
         "or", // A = A | primo argomento
         []() {
-            *Gigi_AssemblyRegisters::getData(-1) |= getArgFromTop(0);
+            *Registers::getData(-1) |= getArgFromTop(0);
         }
     },
     {
         "xor", // A = A | primo argomento
         []() {
-            *Gigi_AssemblyRegisters::getData(-1) ^= getArgFromTop(0);
+            *Registers::getData(-1) ^= getArgFromTop(0);
         }
     },
     {
         "not", // A = ~A
         []() {
-            *Gigi_AssemblyRegisters::getData(-1) = ~(*Gigi_AssemblyRegisters::getData(-1));
+            *Registers::getData(-1) = ~(*Registers::getData(-1));
         }
     },
     {
         "test", // cmp A & primo argomento
         []() {
-            Gigi_AssemblyRegisters::Compare(*Gigi_AssemblyRegisters::getData(-1) & getArgFromTop(0));
+            Registers::Compare(*Registers::getData(-1) & getArgFromTop(0));
         }
     },
     {
         "swp", // swap
         []() {
-            short* first = Gigi_AssemblyRegisters::getData(getArgFromTop(1));
-            short* second = Gigi_AssemblyRegisters::getData(getArgFromTop(0));
+            short* first = Registers::getData(getArgFromTop(1));
+            short* second = Registers::getData(getArgFromTop(0));
 
             short c = *second;
 
@@ -332,21 +334,26 @@ map<string, function<void()>> asmInstructions = { // assegnazione instruzioni as
     {
         "fnc", // function
         []() {
-            Gigi_AssemblyRegisters::functions.insert(pair<string, unsigned int>(getArgFromTopStr(0), Gigi_AssemblyRegisters::programCounter));
+            Registers::functions.insert(pair<string, unsigned int>(getArgFromTopStr(0), Registers::programCounter));
+            while (Interpreter::programInstructions[Registers::programCounter] != "ret") {
+                if (Registers::programCounter >= Interpreter::programInstructions.size())
+                    throw 0b10000100; // 100001.. = errore ret. ..00 = errore assenza
+                Registers::programCounter++;
+            }
         }
     },
     {
         "call", // chiama una funzione definita dall'utente
         []() {
-            Gigi_AssemblyRegisters::callStack.push(Gigi_AssemblyRegisters::programCounter);
-            Gigi_AssemblyRegisters::programCounter = Gigi_AssemblyRegisters::functions.find(getArgFromTopStr(0))->second;
+            Registers::callStack.push(Registers::programCounter);
+            Registers::programCounter = Registers::functions.find(getArgFromTopStr(0))->second;
         }
     },
     {
         "ret", // ritorna alla linea di codice dopo l'esecuzione di una funzione
         []() {
-            Gigi_AssemblyRegisters::programCounter = Gigi_AssemblyRegisters::callStack.top();
-            Gigi_AssemblyRegisters::callStack.pop();
+            Registers::programCounter = Registers::callStack.top();
+            Registers::callStack.pop();
         }
     }
 };

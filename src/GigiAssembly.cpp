@@ -12,24 +12,24 @@
 
 #include "GigiAssembly.hpp"
 
+using namespace Gigi::Assembly;
+
 // GigiRegisters
 
-//enum Gigi_LogicalFlags;
+unsigned long Registers::programCounter = 0;
 
-
-unsigned long Gigi_AssemblyRegisters::programCounter = 0;
-
-string Gigi_AssemblyRegisters::registerNames[]{
+string Registers::registerNames[]{
         "a",
         "b",
-        "c"
+        "c",
+        "in" // registro per contenere gli input/controlli della tastiera/controller
 };
 
-vector<Gigi_Sprite> Gigi_AssemblyRegisters::storedSprites;
-vector<Gigi_Image> Gigi_AssemblyRegisters::storedImages;
+vector<Sprite> Registers::storedSprites;
+vector<Gigi::Image> Registers::storedImages;
 
 // in main, while(!interrupted) continua interpretazione assembly. viene reso false dall'istruzione int
-bool Gigi_AssemblyRegisters::interrupted = false;
+bool Registers::interrupted = false;
 
 /*
     una matrice con tutti i dati disponibili al programma.
@@ -40,36 +40,36 @@ bool Gigi_AssemblyRegisters::interrupted = false;
     se si vuole accedere al registro A durante l'implementazione di funzionalità delle istruzioni, A si troverebbe realmente a indice 0
     se A è l'unico registro/dato riservato implementato nel vettore, per ottenere il primo dato
 */
-vector<short> Gigi_AssemblyRegisters::data;
+vector<short> Registers::data;
 
 // lo stack di dove vengono tenute posizioni nel codice da cui riprendere quando si finisce una funzione
-stack<unsigned int> Gigi_AssemblyRegisters::callStack;
+stack<unsigned int> Registers::callStack;
 
 // tiene nomi di funzioni e le linee a cui iniziano
-map<string, unsigned int> Gigi_AssemblyRegisters::functions;
+map<string, unsigned int> Registers::functions;
 
-void Gigi_AssemblyRegisters::createMemoryIfNone(int index) {
-    while (Gigi_AssemblyRegisters::data.size() <= index + REGISTERS_IN_MEMORY)
-        Gigi_AssemblyRegisters::data.push_back(0);
+void Registers::createMemoryIfNone(int index) {
+    while (Registers::data.size() <= index + REGISTERS_IN_MEMORY)
+        Registers::data.push_back(0);
 }
 
-void Gigi_AssemblyRegisters::AddRegistersToData() {
-    for (int i = Gigi_AssemblyRegisters::data.size(); i < REGISTERS_IN_MEMORY; i++)
-        Gigi_AssemblyRegisters::data.push_back(0);
-}
+void Registers::AddRegistersToData() {
+    for (int i = Registers::data.size(); i < REGISTERS_IN_MEMORY; i++)
+            Registers::data.push_back(0);
+    }
 
-uint8_t Gigi_AssemblyRegisters::logicalFlag;
+uint8_t Registers::logicalFlag;
 
 /*
     una funzione per ottenere i dati del vettore data in modo più pulito, aggiunge un offset all'indice/indirizzo quando viene utilizzato
     usare un numero negativo per negare l'offset e accedere alla memoria dei registri
 */
-short* Gigi_AssemblyRegisters::getData(int address) {
-    Gigi_AssemblyRegisters::createMemoryIfNone(address);
-    return &Gigi_AssemblyRegisters::data[address + REGISTERS_IN_MEMORY];
+short* Registers::getData(int address) {
+    Registers::createMemoryIfNone(address);
+    return &Registers::data[address + REGISTERS_IN_MEMORY];
 }
 
-void Gigi_AssemblyRegisters::Compare(int a) {
+void Registers::Compare(int a) {
     short b = *getData(-1);
     unsigned short c = b - a;
     uint8_t bufferflag = 0;
@@ -84,13 +84,13 @@ void Gigi_AssemblyRegisters::Compare(int a) {
 
 // GigiAssemblyInstructions
 
-vector<string> argStack;
+vector<string> Gigi::Assembly::argStack;
 
-string getArgFromTopStr(int index) {
-    return argStack[argStack.size() - 1 - index]; 
+string Gigi::Assembly::getArgFromTopStr(int index) {
+    return argStack[argStack.size() - 1 - index];
 }
 
-int getArgFromTop(int index) {
+int Gigi::Assembly::getArgFromTop(int index) {
     string buffer = getArgFromTopStr(index);
 
     bool pointing = false; // se il valore si sta riferendo a un indirizzo usando in numero (4 == %$4) (se a = 4, mov c %$a == c = data[a])
@@ -111,48 +111,48 @@ int getArgFromTop(int index) {
     int buffern = 0;
     bool isRegister = false;
     for (int i = 0; i < REGISTERS_IN_MEMORY; i++) {
-        if (buffer == Gigi_AssemblyRegisters::registerNames[i]) {
+        if (buffer == Registers::registerNames[i]) {
             buffern = -(i + 1);
             isRegister = true;
             break;
         }
-        if(i == REGISTERS_IN_MEMORY - 1)
+        if (i == REGISTERS_IN_MEMORY - 1)
             buffern = stoi(buffer);
     }
-    
+
     // if mov a 4, $a = 4 and a = -1 ($4 = 4 and 4 = data[4])
     if (value ^ isRegister) return buffern; // return if (value && !isRegister)$5 || (!value && isRegister)a
-    if(pointing && value) return *Gigi_AssemblyRegisters::getData(*Gigi_AssemblyRegisters::getData(buffern));
-    return *Gigi_AssemblyRegisters::getData(buffern); // retur if (value && isRegister) || (!value && !register)
+    if (pointing && value) return *Registers::getData(*Registers::getData(buffern));
+    return *Registers::getData(buffern); // retur if (value && isRegister) || (!value && !register)
 }
 
-string formatDataString(int index) {
+string Gigi::Assembly::formatDataString(int index) {
     string buffer;
 
-    for (int i = 0; i < *Gigi_AssemblyRegisters::getData(index); i++) {
-        buffer += *Gigi_AssemblyRegisters::getData(index + i + 1);
+    for (int i = 0; i < *Registers::getData(index); i++) {
+        buffer += *Registers::getData(index + i + 1);
     }
 
     return buffer;
 }
 
-void formatStringData(int index, string str) {
+void Gigi::Assembly::formatStringData(int index, string str) {
     int dataLastCharacter = index + str.size() + 1;
-    Gigi_AssemblyRegisters::createMemoryIfNone(dataLastCharacter);
+    Registers::createMemoryIfNone(dataLastCharacter);
 
     for (int i = index; i < dataLastCharacter; i++) {
-        *Gigi_AssemblyRegisters::getData(1 + i) = str[i];
+        *Registers::getData(1 + i) = str[i];
     }
 }
 
 // GigiAssemblyInterpreter
 
-bool Gigi_AssemblyInterpreter::running = true;
+bool Interpreter::running = true;
 
 // dove viene tenuto il codice del programma. l'indice è la linea/posizione dell'istruzione
-vector<string> Gigi_AssemblyInterpreter::programInstructions;
+vector<string> Interpreter::programInstructions;
 
-void Gigi_AssemblyInterpreter::InterpretLine(string str) {
+void Interpreter::InterpretLine(string str) {
     transform(str.begin(), str.end(), str.begin(), tolower); // rende la stringa minuscolo
 
     // rimuove commenti
@@ -184,28 +184,28 @@ void Gigi_AssemblyInterpreter::InterpretLine(string str) {
     }
 }
 
-void Gigi_AssemblyInterpreter::InterpretLines(vector<string> lines) {
-    while (Gigi_AssemblyRegisters::programCounter >= 0 && Gigi_AssemblyRegisters::programCounter < lines.size() && running) {
-        Gigi_AssemblyInterpreter::InterpretLine(lines[Gigi_AssemblyRegisters::programCounter]);
-        Gigi_AssemblyRegisters::programCounter++;
+void Interpreter::InterpretLines(vector<string> lines) {
+    while (Registers::programCounter >= 0 && Registers::programCounter < lines.size() && running) {
+        Interpreter::InterpretLine(lines[Registers::programCounter]);
+        Registers::programCounter++;
     }
 }
 
-void Gigi_AssemblyInterpreter::StepProgram() {
+void Interpreter::StepProgram() {
     if (!running) {
-        Gigi_AssemblyRegisters::interrupted = true;
+        Registers::interrupted = true;
         return;
     }
-    if (Gigi_AssemblyRegisters::programCounter >= Gigi_AssemblyInterpreter::programInstructions.size()) {
+    if (Registers::programCounter >= Interpreter::programInstructions.size()) {
         running = false;
         return;
     }
     try {
-        Gigi_AssemblyInterpreter::InterpretLine(Gigi_AssemblyInterpreter::programInstructions[Gigi_AssemblyRegisters::programCounter]);
-        Gigi_AssemblyRegisters::programCounter++;
+    Interpreter::InterpretLine(Interpreter::programInstructions[Registers::programCounter]);
+        Registers::programCounter++;
     }
-    catch(int e){
+    catch (int e) {
         cout << "GIGIBOX ERROR:\n\tIN:\tGigi_AssemblyInterpreter::StepProgram()\n\tCODICE ERRORE:\t" << e << "\n\tDESCRIZIONE ERRORE (potrebbe non essere accurato):\tE' stato interpretato codice invalido che ha causato errori fatali al programma\n\tPROCEDURE:\tL'interprete e' stato interrotto indefinitivamente. Si prega di riavviare GigiBox\n\n";
-        Gigi_AssemblyInterpreter::running = false;
+        Interpreter::running = false;
     }
 }
