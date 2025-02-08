@@ -20,13 +20,13 @@
 #include <fstream>
 #include <stack>
 
-#include "GigiSprite.hpp"
-#include "GigiTexture.hpp"
+#include "Sprite.hpp"
+#include "Texture.hpp"
 
 // TURN_BITS_TO_ZERO(0b11010011, 0b01100001) = 0b10010010
 #define TURN_BITS_TO_ZERO(VAR, NUMBER) VAR = (VAR | NUMBER) ^ NUMBER
 
-#define REGISTERS_IN_MEMORY 3
+#define REGISTERS_IN_MEMORY 4
 
 using std::map;
 using std::string;
@@ -39,76 +39,81 @@ using std::stack;
 using std::cout;
 using std::stoi;
 
+using Gigi::Sprite;
+
 // GigiRegisters
 
-struct Gigi_AssemblyRegisters {
-    static unsigned long programCounter;
+namespace Gigi::Assembly {
 
-    static string registerNames[REGISTERS_IN_MEMORY];
+    struct Registers {
+        static unsigned long programCounter;
 
-    static bool interrupted;
+        static string registerNames[REGISTERS_IN_MEMORY];
 
-    static vector<Gigi_Sprite> storedSprites;
-    static vector<Gigi_Image> storedImages;
+        static bool interrupted;
 
-    /*
-    usa i bit del numero 8 bit per significare quali flag sono alzate
+        static vector<Sprite> storedSprites;
+        static vector<Image> storedImages;
 
-    primo bit = sign flag; dipendente dal primo bit del numero
-    secondo bit = zero bit; se il numero è zero
-    terzo bit = overflow; se avviene un overflow (es. 0 - 1 = 255(?), 255(?) + 1 = 0)
+        /*
+        usa i bit del numero 8 bit per significare quali flag sono alzate
 
-    */
-    static uint8_t logicalFlag;
+        primo bit = sign flag; dipendente dal primo bit del numero
+        secondo bit = zero bit; se il numero è zero
+        terzo bit = overflow; se avviene un overflow (es. 0 - 1 = 255(?), 255(?) + 1 = 0)
 
-    /*
-    una matrice con tutti i dati disponibili al programma.
-    i registri sono conservati qua dentro, con posti riservati alle prime posizioni (o come si dici in termini tecnici "davanti la matrice") del vettore.
-    i registri non possono essere accessi tramite l'indirizzo/indice del vettore poiché un offset è hardcoded nell'accesso dei dati
-    */ 
-    static vector<short> data;
+        */
+        static uint8_t logicalFlag;
 
-    // lo stack di dove vengono tenute posizioni nel codice da cui riprendere quando si finisce una funzione
-    static stack<unsigned int> callStack;
+        /*
+        una matrice con tutti i dati disponibili al programma.
+        i registri sono conservati qua dentro, con posti riservati alle prime posizioni (o come si dici in termini tecnici "davanti la matrice") del vettore.
+        i registri non possono essere accessi tramite l'indirizzo/indice del vettore poiché un offset è hardcoded nell'accesso dei dati
+        */
+        static vector<short> data;
 
-    // tiene nomi di funzioni e le linee a cui iniziano
-    static map<string, unsigned int> functions;
+        // lo stack di dove vengono tenute posizioni nel codice da cui riprendere quando si finisce una funzione
+        static stack<unsigned int> callStack;
 
-    // crea memoria finché la dimensione dei dati non equivale index
-    static void createMemoryIfNone(int index); 
+        // tiene nomi di funzioni e le linee a cui iniziano
+        static map<string, unsigned int> functions;
 
-    // una funzione per ottenere i dati del vettore data in modo più pulito, aggiunge un offset all'indice/indirizzo
-    static short* getData(int address);
+        // crea memoria finché la dimensione dei dati non equivale index
+        static void createMemoryIfNone(int index);
 
-    // ottiene la logical flag della variabile inserita e la passa a logicalFlag
-    static void Compare(int a);
+        // una funzione per ottenere i dati del vettore data in modo più pulito, aggiunge un offset all'indice/indirizzo
+        static short* getData(int address);
 
-    // inizializzazione registri nella memoria
-    static void AddRegistersToData();
-};
+        // ottiene la logical flag della variabile inserita e la passa a logicalFlag
+        static void Compare(int a);
 
-// GigiAssemblyInstructions
+        // inizializzazione registri nella memoria
+        static void AddRegistersToData();
+    };
 
-extern vector<string> argStack;
+    // GigiAssemblyInstructions
 
-string getArgFromTopStr(int index);
-int getArgFromTop(int index);
-string formatDataString(int index);
-void formatStringData(int index, string str);
+    extern vector<string> argStack;
 
-extern map<string, function<void()>> asmInstructions;
+    string getArgFromTopStr(int index);
+    int getArgFromTop(int index);
+    string formatDataString(int index);
+    void formatStringData(int index, string str);
 
-// GigiAssemblyInterpreter
+    extern map<string, function<void()>> asmInstructions;
 
-struct Gigi_AssemblyInterpreter {
-    static bool running;
+    // GigiAssemblyInterpreter
 
-    // dove viene tenuto il codice del programma. l'indice è la linea/posizione dell'istruzione
-    static vector<string> programInstructions;
+    struct Interpreter {
+        static bool running;
 
-    static void InterpretLine(string str);
+        // dove viene tenuto il codice del programma. l'indice è la linea/posizione dell'istruzione
+        static vector<string> programInstructions;
 
-    static void InterpretLines(vector<string> lines);
+        static void InterpretLine(string str);
 
-    static void StepProgram();
-};
+        static void InterpretLines(vector<string> lines);
+
+        static void StepProgram();
+    };
+}

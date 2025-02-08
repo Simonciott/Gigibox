@@ -1,0 +1,27 @@
+#pragma once
+
+#include <string>
+#include <vector>
+#include <map>
+#include <functional>
+
+#define AVAILABLE_LANGUAGES 2
+
+using std::string, std::vector, std::pair, std::map;
+
+namespace Gigi {
+	string languages[AVAILABLE_LANGUAGES];
+
+	struct Arguments {
+
+		static int currentLang;
+		static string program;
+
+		// argomenti disponibili. prima stringa è l'argomento acronomizzato, seconda è il nome intero
+		static vector<pair<string, string>> availableArgs;
+
+
+
+		static void processArgument(char** arguments, int argIndex);
+	};
+}

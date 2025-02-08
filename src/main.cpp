@@ -50,6 +50,10 @@ int main(int argc, const char* argv[])
     window.setView(sf::View(sf::FloatRect(Vector2f(), Vector2f(SCREEN_WIDTH, SCREEN_HEIGHT))));
     window.setFramerateLimit(FPS);
 
+    /*
+    
+    codice per generare una schermata con la matematica
+
     for (int i = 0; i < SCREEN_HEIGHT; i++) {
         for (int j = 0; j < SCREEN_WIDTH; j++) {
             BuffersManager::getBackBuffer()->setPixel({ (unsigned int)j, (unsigned int)i }, Color(j, (i + j) / 2, i));
@@ -61,7 +65,7 @@ int main(int argc, const char* argv[])
             BuffersManager::getBuffer()->setPixel({ (unsigned int)j, (unsigned int)i }, Color((i + j) / 2, i, j));
             //Gigi_BackBufferTexture::getBackBuffer()->setPixel({ (unsigned int)j, (unsigned int)i }, Color(j, (i + j) / 2, i));
         }
-    }
+    }*/
 
     /* RIP dato immagine manualmente scritto
     uint8_t img_data[] = {0x08, 0x08, 0x02, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0x00, 0xff, 0x00, 0x01, 0x02,
