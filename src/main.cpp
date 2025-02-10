@@ -9,6 +9,8 @@
 #include <functional>
 //#include <stack>
 
+#include "CommonFunctions.hpp"
+
 #include "Constants.hpp"
 #include "Buffers.hpp"
 #include "Texture.hpp"
@@ -16,13 +18,12 @@
 
 #include "GigiAssembly.hpp"
 #include "Input.hpp"
-#include "Arguments.hpp"
 
-using Gigi::Sprite;
-using Gigi::BuffersManager;
+#include "Arguments.hpp"
+#include "Logger.hpp"
+
+using namespace Gigi;
 using namespace Gigi::Assembly;
-using namespace Gigi::Input;
-using Gigi::Arguments;
 
 using std::map;
 using std::string;
@@ -93,7 +94,6 @@ int main(int argc, const char* argv[])
     if (1) {
         string line;
         fstream programstream;
-        cout << Arguments::program << "\n";
         programstream.open(Arguments::program);
         if (!programstream.is_open()) throw 0b11010000;
 
@@ -105,8 +105,8 @@ int main(int argc, const char* argv[])
         }
         programstream.close();
     }
-    if(Interpreter::programInstructions.empty())
-        cout << "GIGIBOX WARNING:\n\tIN:\tmain()" << "\n\tDESCRIZIONE AVVERTIMENTO (potrebbe non essere accurato):\tNon sono state caricate alcune istruzioni al programma, causato probabilmente da script mancanti o inesistenti\n\tPROCEDURE:\tNon verra' eseguito alcun programma. Riavviare Gigibox se si desidera eseguirne uno\n\n";
+    if (Interpreter::programInstructions.empty())
+        Logger::logWarning("main()", "logger.warning.assembly.missingscript", "logger.warning.assembly.noprogramrun");
     
 
     while (window.isOpen())
@@ -117,13 +117,13 @@ int main(int argc, const char* argv[])
                 window.close();
             // NON TESTATO. PER FAVORE TESTARE
             *Registers::getData(-4) = (
-                ((int)Key::Up.isEitherDown() << 7) +
-                ((int)Key::Left.isEitherDown() << 6) +
-                ((int)Key::Down.isEitherDown() << 5) +
-                ((int)Key::Right.isEitherDown() << 4) +
-                ((int)Key::Zed.isEitherDown() << 3) +
-                ((int)Key::Ex.isEitherDown() << 2) +
-                ((int)Key::Cee.isEitherDown() << 1)
+                ((int)Input::Key::Up.isEitherDown() << 7) +
+                ((int)Input::Key::Left.isEitherDown() << 6) +
+                ((int)Input::Key::Down.isEitherDown() << 5) +
+                ((int)Input::Key::Right.isEitherDown() << 4) +
+                ((int)Input::Key::Zed.isEitherDown() << 3) +
+                ((int)Input::Key::Ex.isEitherDown() << 2) +
+                ((int)Input::Key::Cee.isEitherDown() << 1)
             );
         }
 

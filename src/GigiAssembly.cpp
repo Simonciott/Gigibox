@@ -12,6 +12,12 @@
 
 #include "GigiAssembly.hpp"
 
+#include "LanguageManager.hpp"
+#include "Logger.hpp"
+#include "CommonFunctions.hpp"
+
+typedef Gigi::LanguageManager lm;
+
 // GigiRegisters
 
 unsigned long Gigi::Assembly::Registers::programCounter = 0;
@@ -203,7 +209,7 @@ void Gigi::Assembly::Interpreter::StepProgram() {
         Registers::programCounter++;
     }
     catch (int e) {
-        cout << "GIGIBOX ERROR:\n\tIN:\tGigi_AssemblyInterpreter::StepProgram()\n\tCODICE ERRORE:\t" << e << "\n\tDESCRIZIONE ERRORE (potrebbe non essere accurato):\tE' stato interpretato codice invalido che ha causato errori fatali al programma\n\tPROCEDURE:\tL'interprete e' stato interrotto indefinitivamente. Si prega di riavviare GigiBox\n\n";
+        Logger::logError("Gigi_AssemblyInterpreter::StepProgram()", "logger.error.assembly.illegalcode", "logger.error.assembly.haltproc", e, LOGGER_ALL);
         Interpreter::running = false;
     }
 }
