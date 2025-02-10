@@ -1,11 +1,17 @@
 #include "Arguments.hpp"
 
 #include <algorithm>
+#include <stdexcept>
 
 using Gigi::Arguments;
 
+string Gigi::languages[AVAILABLE_LANGUAGES] = {
+	"italian",
+	"english"
+};
+
 int Arguments::currentLang = 0;
-string Arguments::program = "";
+string Arguments::program = "./dvd.gasm";
 
 vector<pair<string, string>> Arguments::availableArgs {
 	{ "language", "l" }, // che lingua scegliere
@@ -13,19 +19,53 @@ vector<pair<string, string>> Arguments::availableArgs {
 	{ "input", "I" } // profilo input da utilizzare
 };
 
-void Arguments::processArgument(char** arguments, int argIndex) {
+void Arguments::processArgument(const char** arguments, int argIndex) {
 
+	string sarg;
 	// cerca a quale argomento si riferisce la stringa in arguments
 	int index = -1;
-	for (int i = 0; i < availableArgs.size(); i++) {
-		if (string(arguments[argIndex]) == availableArgs[i].first || string(arguments[argIndex]) == availableArgs[i].second) {
+	for (int i = 0; i < availableArgs.size(); i++) { // TODO: RIFORMATTARE TUTTO QUESTO
+		string buffer;
+		try {
+			buffer = arguments[argIndex];
+		}
+		catch (const std::out_of_range& err) {
+			throw 0b11101000;
+		}
+		int firstsecond = -1; // determina se si accede al nome argomento intero o l'acronimo ((bool)firstsecond ? availableArgs[x].second : availableArgs[x].first) se negativo dà un errore
+
+		// rimuove dash
+		int dashindex = buffer.find_first_of("-");
+		while (dashindex == 0) {
+			firstsecond++;
+			buffer.erase(0, 1);
+			dashindex = buffer.find_first_of("-");
+		}
+		if (firstsecond < 0) {
+			index = 1;
+			sarg = buffer;
+			break;
+		}
+		//throw 0b11101010;
+
+		// assegna nome argomento appropriato
+		string argname;
+		try {
+			argname = (bool)firstsecond ? availableArgs[i].first : availableArgs[i].second;
+		}
+		catch (const std::out_of_range& err) {
+			throw 0b11101000;
+		}
+
+		// compara
+		if (buffer == argname) {
 			index = i;
 			break;
 		}
 	}
 	if (index < 0) throw 0b11101000; // 111010.. errore argomenti
 
-	string sarg = string(arguments[argIndex + 1]);
+	sarg = arguments[argIndex + 1];
 	transform(sarg.begin(), sarg.end(), sarg.begin(), tolower);
 
 	switch (index) {
@@ -41,11 +81,11 @@ void Arguments::processArgument(char** arguments, int argIndex) {
 		if (currentLang < 0) throw 0b11101000;
 
 		break;
-	
 	case 1:
 		program = sarg;
 		break;
 	default:
-		throw 0b11101011; // ..10 errore generale
+		throw 0b11101010; // ..10 errore generale
 	}
+
 }

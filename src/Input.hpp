@@ -12,14 +12,14 @@ namespace Gigi::Input {
 		Key(Scan mk, Scan ak);
 
 		bool isEitherDown();
+
+		static Key Up;
+		static Key Left;
+		static Key Down;
+		static Key Right;
+
+		static Key Zed;
+		static Key Ex;
+		static Key Cee;
 	};
-
-	Key Up = Key(Scan::W, Scan::Up);
-	Key Left = Key(Scan::A, Scan::Left);
-	Key Down = Key(Scan::S, Scan::Down);
-	Key Right = Key(Scan::D, Scan::Right);
-
-	Key Zed = Key(Scan::I, Scan::Z);
-	Key Ex = Key(Scan::O, Scan::X);
-	Key Cee = Key(Scan::P, Scan::C);
 }

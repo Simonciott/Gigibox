@@ -16,8 +16,13 @@
 
 #include "GigiAssembly.hpp"
 #include "Input.hpp"
+#include "Arguments.hpp"
 
-using namespace Gigi;
+using Gigi::Sprite;
+using Gigi::BuffersManager;
+using namespace Gigi::Assembly;
+using namespace Gigi::Input;
+using Gigi::Arguments;
 
 using std::map;
 using std::string;
@@ -40,7 +45,9 @@ using sf::Vector2u;
 
 int main(int argc, const char* argv[])
 {
-    const char* programscript = argc < 2 ? "./dvd.gasm" : argv[1];
+    for (int i = 1; i < argc; i += 2) {
+        Arguments::processArgument(argv, i);
+    }
 
     // sprite per metterci sopra il buffer sotto forma di texture
     sf::Sprite Gigi_BackBufferSprite(BuffersManager::texture);
@@ -80,23 +87,25 @@ int main(int argc, const char* argv[])
             0x02, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x02
     };*/
 
-    Assembly::Registers::AddRegistersToData();
+    Registers::AddRegistersToData();
 
     // scoped code block
     if (1) {
         string line;
         fstream programstream;
-        programstream.open(string(programscript));
+        cout << Arguments::program << "\n";
+        programstream.open(Arguments::program);
+        if (!programstream.is_open()) throw 0b11010000;
 
         while (std::getline(programstream, line)) {
             int com = line.find(";");
             if (com != string::npos) line.erase(com, line.size());
 
-            Assembly::Interpreter::programInstructions.push_back(line);
+            Interpreter::programInstructions.push_back(line);
         }
         programstream.close();
     }
-    if(Assembly::Interpreter::programInstructions.empty())
+    if(Interpreter::programInstructions.empty())
         cout << "GIGIBOX WARNING:\n\tIN:\tmain()" << "\n\tDESCRIZIONE AVVERTIMENTO (potrebbe non essere accurato):\tNon sono state caricate alcune istruzioni al programma, causato probabilmente da script mancanti o inesistenti\n\tPROCEDURE:\tNon verra' eseguito alcun programma. Riavviare Gigibox se si desidera eseguirne uno\n\n";
     
 
@@ -107,22 +116,22 @@ int main(int argc, const char* argv[])
             if (event->is<sf::Event::Closed>())
                 window.close();
             // NON TESTATO. PER FAVORE TESTARE
-            *Assembly::Registers::getData(-4) = (
-                (int)Input::Up.isEitherDown() << 7 +
-                (int)Input::Left.isEitherDown() << 6 +
-                (int)Input::Down.isEitherDown() << 5 +
-                (int)Input::Right.isEitherDown() << 4 +
-                (int)Input::Zed.isEitherDown() << 3 +
-                (int)Input::Ex.isEitherDown() << 2 +
-                (int)Input::Cee.isEitherDown() << 1
+            *Registers::getData(-4) = (
+                ((int)Key::Up.isEitherDown() << 7) +
+                ((int)Key::Left.isEitherDown() << 6) +
+                ((int)Key::Down.isEitherDown() << 5) +
+                ((int)Key::Right.isEitherDown() << 4) +
+                ((int)Key::Zed.isEitherDown() << 3) +
+                ((int)Key::Ex.isEitherDown() << 2) +
+                ((int)Key::Cee.isEitherDown() << 1)
             );
         }
 
-        Assembly::Registers::interrupted = !Assembly::Interpreter::running;
+        Registers::interrupted = !Interpreter::running;
 
-        while (!Assembly::Registers::interrupted) {
+        while (!Registers::interrupted) {
             //cout << Gigi_AssemblyInterpreter::programInstructions[Gigi_AssemblyRegisters::programCounter] << endl;
-            Assembly::Interpreter::StepProgram();
+            Interpreter::StepProgram();
 
             //cout << Gigi_AssemblyRegisters::programCounter << endl << endl;;
 
@@ -134,8 +143,8 @@ int main(int argc, const char* argv[])
 
         BuffersManager::clearBackBuffer(Color::Black);
 
-        for (int i = 0; i < Assembly::Registers::storedSprites.size(); i++) {
-            Sprite& spr = Assembly::Registers::storedSprites[i];
+        for (int i = 0; i < Registers::storedSprites.size(); i++) {
+            Sprite& spr = Registers::storedSprites[i];
             spr.Draw(spr.x, spr.y);
         }
 

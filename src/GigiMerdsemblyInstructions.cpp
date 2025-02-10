@@ -11,7 +11,7 @@
 using namespace Gigi::Assembly;
 
 // le funzioni che poi vengono chiamate dall'interprete per eseguire una specifica istruzione
-map<string, function<void()>> asmInstructions = { // assegnazione instruzioni asm
+map<string, function<void()>> Gigi::Assembly::asmInstructions = { // assegnazione instruzioni asm
     {
         "mov",
         []() {
@@ -131,10 +131,10 @@ map<string, function<void()>> asmInstructions = { // assegnazione instruzioni as
                         data[i] = filedata[i];
                     }
 
-                    Registers::storedImages.push_back(Image(data));
+                    Registers::storedImages.push_back(Gigi::Image(data));
 
                     int textureIndex = Registers::storedImages.size() - 1;
-                    Image* textureref = &Registers::storedImages[textureIndex];
+                    Gigi::Image* textureref = &Registers::storedImages[textureIndex];
 
                     // aggiunta dati riconoscimento al vettore
                     int textreDataIndex = *Registers::getData(-2);
@@ -152,11 +152,11 @@ map<string, function<void()>> asmInstructions = { // assegnazione instruzioni as
             case 3: { // crea uno sprite. registro A: indice texture. B: indirizzo salvataggio dei dati sprite nel vettore. ~~C: visibilità sprite alla creazione~~
                 try {
                     int txtind = *Registers::getData(*Registers::getData(-1));
-                    Registers::storedSprites.push_back(Gigi_Sprite(Registers::storedImages[txtind]));
+                    Registers::storedSprites.push_back(Sprite(Registers::storedImages[txtind]));
                     int last = Registers::storedSprites.size() - 1;
 
                     // salvataggio sprite nel vettore
-                    Gigi_Sprite* sprRef = &Registers::storedSprites[last];
+                    Sprite* sprRef = &Registers::storedSprites[last];
                     Registers::createMemoryIfNone(*Registers::getData(-2) + 3);
                     short* sprDataIndx = Registers::getData(*Registers::getData(-2)); // riferenza all'indirizzo in data dove lo sprite verrà salvato
 

@@ -10,7 +10,7 @@
 using std::string, std::vector, std::pair, std::map;
 
 namespace Gigi {
-	string languages[AVAILABLE_LANGUAGES];
+	extern string languages[AVAILABLE_LANGUAGES];
 
 	struct Arguments {
 
@@ -22,6 +22,6 @@ namespace Gigi {
 
 
 
-		static void processArgument(char** arguments, int argIndex);
+		static void processArgument(const char** arguments, int argIndex);
 	};
 }

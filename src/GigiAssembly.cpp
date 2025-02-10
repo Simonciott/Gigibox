@@ -12,24 +12,22 @@
 
 #include "GigiAssembly.hpp"
 
-using namespace Gigi::Assembly;
-
 // GigiRegisters
 
-unsigned long Registers::programCounter = 0;
+unsigned long Gigi::Assembly::Registers::programCounter = 0;
 
-string Registers::registerNames[]{
+string Gigi::Assembly::Registers::registerNames[]{
         "a",
         "b",
         "c",
         "in" // registro per contenere gli input/controlli della tastiera/controller
 };
 
-vector<Sprite> Registers::storedSprites;
-vector<Gigi::Image> Registers::storedImages;
+vector<Sprite> Gigi::Assembly::Registers::storedSprites;
+vector<Gigi::Image> Gigi::Assembly::Registers::storedImages;
 
 // in main, while(!interrupted) continua interpretazione assembly. viene reso false dall'istruzione int
-bool Registers::interrupted = false;
+bool Gigi::Assembly::Registers::interrupted = false;
 
 /*
     una matrice con tutti i dati disponibili al programma.
@@ -40,37 +38,37 @@ bool Registers::interrupted = false;
     se si vuole accedere al registro A durante l'implementazione di funzionalità delle istruzioni, A si troverebbe realmente a indice 0
     se A è l'unico registro/dato riservato implementato nel vettore, per ottenere il primo dato
 */
-vector<short> Registers::data;
+vector<short> Gigi::Assembly::Registers::data;
 
 // lo stack di dove vengono tenute posizioni nel codice da cui riprendere quando si finisce una funzione
-stack<unsigned int> Registers::callStack;
+stack<unsigned int> Gigi::Assembly::Registers::callStack;
 
 // tiene nomi di funzioni e le linee a cui iniziano
-map<string, unsigned int> Registers::functions;
+map<string, unsigned int> Gigi::Assembly::Registers::functions;
 
-void Registers::createMemoryIfNone(int index) {
-    while (Registers::data.size() <= index + REGISTERS_IN_MEMORY)
-        Registers::data.push_back(0);
+void Gigi::Assembly::Registers::createMemoryIfNone(int index) {
+    while (Gigi::Assembly::Registers::data.size() <= index + REGISTERS_IN_MEMORY)
+        Gigi::Assembly::Registers::data.push_back(0);
 }
 
-void Registers::AddRegistersToData() {
-    for (int i = Registers::data.size(); i < REGISTERS_IN_MEMORY; i++)
-            Registers::data.push_back(0);
+void Gigi::Assembly::Registers::AddRegistersToData() {
+    for (int i = Gigi::Assembly::Registers::data.size(); i < REGISTERS_IN_MEMORY; i++)
+        Gigi::Assembly::Registers::data.push_back(0);
     }
 
-uint8_t Registers::logicalFlag;
+uint8_t Gigi::Assembly::Registers::logicalFlag;
 
 /*
     una funzione per ottenere i dati del vettore data in modo più pulito, aggiunge un offset all'indice/indirizzo quando viene utilizzato
     usare un numero negativo per negare l'offset e accedere alla memoria dei registri
 */
-short* Registers::getData(int address) {
-    Registers::createMemoryIfNone(address);
-    return &Registers::data[address + REGISTERS_IN_MEMORY];
+short* Gigi::Assembly::Registers::getData(int address) {
+    Gigi::Assembly::Registers::createMemoryIfNone(address);
+    return &Gigi::Assembly::Registers::data[address + REGISTERS_IN_MEMORY];
 }
 
-void Registers::Compare(int a) {
-    short b = *getData(-1);
+void Gigi::Assembly::Registers::Compare(int a) {
+    short b = *Gigi::Assembly::Registers::getData(-1);
     unsigned short c = b - a;
     uint8_t bufferflag = 0;
 
@@ -91,7 +89,7 @@ string Gigi::Assembly::getArgFromTopStr(int index) {
 }
 
 int Gigi::Assembly::getArgFromTop(int index) {
-    string buffer = getArgFromTopStr(index);
+    string buffer = Gigi::Assembly::getArgFromTopStr(index);
 
     bool pointing = false; // se il valore si sta riferendo a un indirizzo usando in numero (4 == %$4) (se a = 4, mov c %$a == c = data[a])
     int isTherePointer = buffer.find("%");
@@ -138,21 +136,21 @@ string Gigi::Assembly::formatDataString(int index) {
 
 void Gigi::Assembly::formatStringData(int index, string str) {
     int dataLastCharacter = index + str.size() + 1;
-    Registers::createMemoryIfNone(dataLastCharacter);
+    Gigi::Assembly::Registers::createMemoryIfNone(dataLastCharacter);
 
     for (int i = index; i < dataLastCharacter; i++) {
-        *Registers::getData(1 + i) = str[i];
+        *Gigi::Assembly::Registers::getData(1 + i) = str[i];
     }
 }
 
 // GigiAssemblyInterpreter
 
-bool Interpreter::running = true;
+bool Gigi::Assembly::Interpreter::running = true;
 
 // dove viene tenuto il codice del programma. l'indice è la linea/posizione dell'istruzione
-vector<string> Interpreter::programInstructions;
+vector<string> Gigi::Assembly::Interpreter::programInstructions;
 
-void Interpreter::InterpretLine(string str) {
+void Gigi::Assembly::Interpreter::InterpretLine(string str) {
     transform(str.begin(), str.end(), str.begin(), tolower); // rende la stringa minuscolo
 
     // rimuove commenti
@@ -184,14 +182,14 @@ void Interpreter::InterpretLine(string str) {
     }
 }
 
-void Interpreter::InterpretLines(vector<string> lines) {
+void Gigi::Assembly::Interpreter::InterpretLines(vector<string> lines) {
     while (Registers::programCounter >= 0 && Registers::programCounter < lines.size() && running) {
         Interpreter::InterpretLine(lines[Registers::programCounter]);
         Registers::programCounter++;
     }
 }
 
-void Interpreter::StepProgram() {
+void Gigi::Assembly::Interpreter::StepProgram() {
     if (!running) {
         Registers::interrupted = true;
         return;
