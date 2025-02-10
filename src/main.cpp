@@ -9,18 +9,18 @@
 #include <functional>
 //#include <stack>
 
-#include "CommonFunctions.hpp"
+#include "System/CommonFunctions.hpp"
 
-#include "Constants.hpp"
-#include "Buffers.hpp"
-#include "Texture.hpp"
-#include "Sprite.hpp"
+#include "Game/Constants.hpp"
+#include "Game/Buffers.hpp"
+#include "Game/Texture.hpp"
+#include "Game/Sprite.hpp"
 
-#include "GigiAssembly.hpp"
-#include "Input.hpp"
+#include "Assembly/Assembly.hpp"
+#include "Game/Input.hpp"
 
-#include "Arguments.hpp"
-#include "Logger.hpp"
+#include "System/Arguments.hpp"
+#include "System/Logger.hpp"
 
 using namespace Gigi;
 using namespace Gigi::Assembly;
