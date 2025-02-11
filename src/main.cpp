@@ -25,24 +25,10 @@
 using namespace Gigi;
 using namespace Gigi::Assembly;
 
-using std::map;
-using std::string;
-using std::vector;
-
-using std::cout;
-using std::endl;
-using std::string;
-using std::fstream;
-using std::ios;
-using std::function;
-using std::stoi;
-//using std::stack;
-
 using sf::Image;
 using sf::Color;
 using sf::Texture;
-using sf::Vector2f;
-using sf::Vector2u;
+using sf::Vector2f, sf::Vector2u;
 
 int main(int argc, const char* argv[])
 {
@@ -52,11 +38,6 @@ int main(int argc, const char* argv[])
 
     // sprite per metterci sopra il buffer sotto forma di texture
     sf::Sprite Gigi_BackBufferSprite(BuffersManager::texture);
-
-    sf::RenderWindow window(sf::VideoMode({ SCREEN_WIDTH * SCREEN_SCALE, SCREEN_HEIGHT * SCREEN_SCALE }), "GigiBox");
-
-    window.setView(sf::View(sf::FloatRect(Vector2f(), Vector2f(SCREEN_WIDTH, SCREEN_HEIGHT))));
-    window.setFramerateLimit(FPS);
 
     /*
     
@@ -91,7 +72,7 @@ int main(int argc, const char* argv[])
     Registers::AddRegistersToData();
 
     // scoped code block
-    if (1) {
+    try {
         string line;
         fstream programstream;
         programstream.open(Arguments::program);
@@ -105,8 +86,17 @@ int main(int argc, const char* argv[])
         }
         programstream.close();
     }
+    catch (int er) {
+        Logger::logError("main()", "logger.error.fileopen", "logger.warning.assembly.noprogramrun", er);
+    }
     if (Interpreter::programInstructions.empty())
         Logger::logWarning("main()", "logger.warning.assembly.missingscript", "logger.warning.assembly.noprogramrun");
+
+    // crea finestra
+    sf::RenderWindow window(sf::VideoMode({ SCREEN_WIDTH * SCREEN_SCALE, SCREEN_HEIGHT * SCREEN_SCALE }), "GigiBox");
+
+    window.setView(sf::View(sf::FloatRect(Vector2f(), Vector2f(SCREEN_WIDTH, SCREEN_HEIGHT))));
+    window.setFramerateLimit(FPS);
     
 
     while (window.isOpen())
@@ -115,15 +105,24 @@ int main(int argc, const char* argv[])
         {
             if (event->is<sf::Event::Closed>())
                 window.close();
-            // NON TESTATO. PER FAVORE TESTARE
+            /*
+                l'input è tenuto in un numero con i primi bit significanti se l'input a cui è assegnato sta venendo premuto
+                bit 1: su o w
+                bit 2: sinistra o a
+                bit 3: giù o s
+                bit 4: destra o d
+                bit 5: z oppure i
+                bit 6: x oppure o
+                bit 7: c oppure p
+            */
             *Registers::getData(-4) = (
-                ((int)Input::Key::Up.isEitherDown() << 7) +
-                ((int)Input::Key::Left.isEitherDown() << 6) +
-                ((int)Input::Key::Down.isEitherDown() << 5) +
-                ((int)Input::Key::Right.isEitherDown() << 4) +
-                ((int)Input::Key::Zed.isEitherDown() << 3) +
-                ((int)Input::Key::Ex.isEitherDown() << 2) +
-                ((int)Input::Key::Cee.isEitherDown() << 1)
+                ((int)Input::Key::Up.isEitherDown()) +
+                ((int)Input::Key::Left.isEitherDown() << 1) +
+                ((int)Input::Key::Down.isEitherDown() << 2) +
+                ((int)Input::Key::Right.isEitherDown() << 3) +
+                ((int)Input::Key::Zed.isEitherDown() << 4) +
+                ((int)Input::Key::Ex.isEitherDown() << 5) +
+                ((int)Input::Key::Cee.isEitherDown() << 6)
             );
         }
 
@@ -149,6 +148,8 @@ int main(int argc, const char* argv[])
         }
 
         BuffersManager::swapBuffers();
+
+        cout << *Registers::getData(-4) << NEWL;
 
         window.draw(Gigi_BackBufferSprite);
         window.display();

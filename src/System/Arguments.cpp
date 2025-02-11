@@ -24,30 +24,30 @@ void Arguments::processArgument(const char** arguments, int argIndex) {
 	string sarg;
 	// cerca a quale argomento si riferisce la stringa in arguments
 	int index = -1;
-	for (int i = 0; i < availableArgs.size(); i++) { // TODO: RIFORMATTARE TUTTO QUESTO
-		string buffer;
-		try {
-			buffer = arguments[argIndex];
-		}
-		catch (const std::out_of_range& err) {
-			throw 0b11101000;
-		}
-		int firstsecond = -1; // determina se si accede al nome argomento intero o l'acronimo ((bool)firstsecond ? availableArgs[x].second : availableArgs[x].first) se negativo dà un errore
 
-		// rimuove dash
-		int dashindex = buffer.find_first_of("-");
-		while (dashindex == 0) {
-			firstsecond++;
-			buffer.erase(0, 1);
-			dashindex = buffer.find_first_of("-");
-		}
-		if (firstsecond < 0) {
-			index = 1;
-			sarg = buffer;
-			break;
-		}
-		//throw 0b11101010;
+	string buffer;
+	try {
+		buffer = arguments[argIndex];
+	}
+	catch (const std::out_of_range& err) {
+		throw 0b11101000;
+	}
+	int firstsecond = -1; // determina se si accede al nome argomento intero o l'acronimo ((bool)firstsecond ? availableArgs[x].second : availableArgs[x].first) se negativo dà un errore
 
+	// rimuove dash
+	int dashindex = buffer.find_first_of("-");
+	while (dashindex == 0) {
+		firstsecond++;
+		buffer.erase(0, 1);
+		dashindex = buffer.find_first_of("-");
+	}
+	if (firstsecond < 0) {
+		index = 1;
+		sarg = buffer;
+	}
+
+	if(sarg != buffer) // esegui for solo se sarg non è stato assegnato dall'if giusto sopra questo
+	for (int i = 0; i < availableArgs.size(); i++) {
 		// assegna nome argomento appropriato
 		string argname;
 		try {
@@ -65,8 +65,10 @@ void Arguments::processArgument(const char** arguments, int argIndex) {
 	}
 	if (index < 0) throw 0b11101000; // 111010.. errore argomenti
 
-	sarg = arguments[argIndex + 1];
-	transform(sarg.begin(), sarg.end(), sarg.begin(), tolower);
+
+	if(sarg != buffer) sarg = arguments[argIndex + 1];
+	if(index != 1) transform(sarg.begin(), sarg.end(), sarg.begin(), tolower);
+
 
 	switch (index) {
 	case 0:

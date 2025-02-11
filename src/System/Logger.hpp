@@ -30,7 +30,7 @@ namespace Gigi {
 				LM::getMessage("logger.error") + NEWL
 				+ (areBitsOn(showcode, LOGGER_IN) ? (TAB + LM::getMessage("logger.in") + INDRES + in + NEWL) : "")
 				+ (areBitsOn(showcode, LOGGER_CODE) ? (TAB + LM::getMessage("logger.error.code") + INDRES + std::to_string(errorcode) + NEWL) : "")
-				+ (areBitsOn(showcode, LOGGER_DESCRIPTION) == LOGGER_DESCRIPTION ? (TAB + LM::getMessage("logger.error.description") + INDRES + LM::getMessage(description) + NEWL) : "")
+				+ (areBitsOn(showcode, LOGGER_DESCRIPTION) ? (TAB + LM::getMessage("logger.error.description") + INDRES + LM::getMessage(description) + NEWL) : "")
 				+ (areBitsOn(showcode, LOGGER_PROCEDURES) ? (TAB + LM::getMessage("logger.procedures") + INDRES + LM::getMessage(procedure) + NEWL) : "")
 				+ NEWL;
 			cout << message;
@@ -41,7 +41,7 @@ namespace Gigi {
 				LM::getMessage("logger.warning") + NEWL
 				+ (areBitsOn(showcode, LOGGER_IN) ? (TAB + LM::getMessage("logger.in") + INDRES + in + NEWL) : "")
 				+ (areBitsOn(showcode, LOGGER_CODE) ? (TAB + LM::getMessage("logger.code") + INDRES + std::to_string(warncode) + NEWL) : "")
-				+ (areBitsOn(showcode, LOGGER_DESCRIPTION) == LOGGER_DESCRIPTION ? (TAB + LM::getMessage("logger.warning.description") + INDRES + LM::getMessage(description) + NEWL) : "")
+				+ (areBitsOn(showcode, LOGGER_DESCRIPTION) ? (TAB + LM::getMessage("logger.warning.description") + INDRES + LM::getMessage(description) + NEWL) : "")
 				+ (areBitsOn(showcode, LOGGER_PROCEDURES) ? (TAB + LM::getMessage("logger.procedures") + INDRES + LM::getMessage(procedure) + NEWL) : "")
 				+ NEWL;
 			cout << message;

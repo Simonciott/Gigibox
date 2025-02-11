@@ -91,5 +91,12 @@ map<string, vector<string>> Gigi::LanguageManager::messages = {
 			"Non verra' eseguito alcun programma. Riavviare Gigibox se si desidera eseguirne uno",
 			"No program will be run. Restart Gigibox if you wish to run one"
 		}
+	},
+	{
+		"logger.error.fileopen",
+		{
+			"Impossibile aprire il file. Hai scritto il nome o il percorso correttamente?",
+			"Unable to open file. Did you write the name or path correctly?"
+		}
 	}
 };
