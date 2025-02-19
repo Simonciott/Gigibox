@@ -1,5 +1,7 @@
 #include "Arguments.hpp"
 
+#include "ErrorCodes.hpp"
+
 #include <algorithm>
 #include <stdexcept>
 
@@ -30,7 +32,7 @@ void Arguments::processArgument(const char** arguments, int argIndex) {
 		buffer = arguments[argIndex];
 	}
 	catch (const std::out_of_range& err) {
-		throw 0b11101000;
+		throw CODE_ERROR_ARGUMENT | CODE_ERROR_ABSENCE;
 	}
 	int firstsecond = -1; // determina se si accede al nome argomento intero o l'acronimo ((bool)firstsecond ? availableArgs[x].second : availableArgs[x].first) se negativo dà un errore
 
@@ -50,12 +52,7 @@ void Arguments::processArgument(const char** arguments, int argIndex) {
 	for (int i = 0; i < availableArgs.size(); i++) {
 		// assegna nome argomento appropriato
 		string argname;
-		try {
-			argname = (bool)firstsecond ? availableArgs[i].first : availableArgs[i].second;
-		}
-		catch (const std::out_of_range& err) {
-			throw 0b11101000;
-		}
+		// eliminato try catch inutile
 
 		// compara
 		if (buffer == argname) {
@@ -63,7 +60,7 @@ void Arguments::processArgument(const char** arguments, int argIndex) {
 			break;
 		}
 	}
-	if (index < 0) throw 0b11101000; // 111010.. errore argomenti
+	if (index < 0) throw CODE_ERROR_ARGUMENT; // 111010.. errore argomenti
 
 
 	if(sarg != buffer) sarg = arguments[argIndex + 1];
@@ -80,14 +77,14 @@ void Arguments::processArgument(const char** arguments, int argIndex) {
 				break;
 			}
 		}
-		if (currentLang < 0) throw 0b11101000;
+		if (currentLang < 0) throw CODE_ERROR_ARGUMENT;
 
 		break;
 	case 1:
 		program = sarg;
 		break;
 	default:
-		throw 0b11101010; // ..10 errore generale
+		throw CODE_ERROR_ARGUMENT | CODE_ERROR_GENERAL; // ..10 errore generale
 	}
 
 }

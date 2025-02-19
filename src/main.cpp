@@ -71,12 +71,11 @@ int main(int argc, const char* argv[])
 
     Registers::AddRegistersToData();
 
-    // scoped code block
     try {
         string line;
         fstream programstream;
         programstream.open(Arguments::program);
-        if (!programstream.is_open()) throw 0b11010000;
+        if (!programstream.is_open()) throw CODE_ERROR_FILE;
 
         while (std::getline(programstream, line)) {
             int com = line.find(";");
@@ -144,7 +143,7 @@ int main(int argc, const char* argv[])
 
         for (int i = 0; i < Registers::storedSprites.size(); i++) {
             Sprite& spr = Registers::storedSprites[i];
-            spr.Draw(spr.x, spr.y);
+            spr.Draw();
         }
 
         BuffersManager::swapBuffers();

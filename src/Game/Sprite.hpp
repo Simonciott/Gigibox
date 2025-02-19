@@ -9,20 +9,21 @@
 namespace Gigi {
 	struct Sprite {
 
-		int x = 0;
-		int y = 0;
+		// x e y rimossi esclusivamente su assembly gigibox
+		// altri progetti che potrebbero usare il motore grafico gigibox includeranno x e y (e rimuoveranno le variabili hook)
 
 		// gigibox exclusive hookup variables
+		// non c'ho voglia di cambiare il nome frate
 		short* xHook = nullptr;
 		short* yHook = nullptr;
 		bool* visibleHook = nullptr;
 
-		bool visible = true;
+		// stessa cosa la prorietà visible
 
 		Image* texture;
 
 		Sprite(Image& img);
 
-		void Draw(int x, int y);
+		void Draw();
 	};
 }

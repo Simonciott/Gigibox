@@ -102,7 +102,7 @@ map<string, function<void()>> Gigi::Assembly::asmInstructions = { // assegnazion
                     stream.open("./" + buf + ".gimg"); // DID: RISOLVERE QUESTO (quando si usa un nome file dinamico (a variabile), il file dà errori e non si apre)
                     // RISOLTO! NOTA: NON DARE ALLE STRINGHE NULL ADDIZIONALI. INTERFERIRANNO CON TUTTO
 
-                    if (!stream.is_open() || stream.fail()) throw 0b11100000;
+                    if (!stream.is_open() || stream.fail()) throw CODE_ERROR_FILE | CODE_ERROR_ABSENCE;
 
                     //cout << stream.is_open() << endl << stream.bad() << endl << stream.fail() << endl;
 
@@ -144,7 +144,7 @@ map<string, function<void()>> Gigi::Assembly::asmInstructions = { // assegnazion
                     stream.close();
                 }
                 catch (int er) {
-                    throw 0b11100010; // 111000.. = errore texture, ..10 = errore generale
+                    throw CODE_ERROR_TEXTURE | CODE_ERROR_GENERAL; // 111000.. = errore texture, ..10 = errore generale
                 }
 
                 break;
@@ -168,7 +168,7 @@ map<string, function<void()>> Gigi::Assembly::asmInstructions = { // assegnazion
                     *sprRef->visibleHook = true;
                 }
                 catch (int er) {
-                    throw 0b11010010; // 11010... = errore sprite
+                    throw CODE_ERROR_SPRITE | CODE_ERROR_GENERAL; // 11010... = errore sprite
                 }
             }
             }
@@ -337,7 +337,7 @@ map<string, function<void()>> Gigi::Assembly::asmInstructions = { // assegnazion
             Registers::functions.insert(pair<string, unsigned int>(getArgFromTopStr(0), Registers::programCounter));
             while (Interpreter::programInstructions[Registers::programCounter] != "ret") {
                 if (Registers::programCounter >= Interpreter::programInstructions.size())
-                    throw 0b10000100; // 100001.. = errore ret. ..00 = errore assenza
+                    throw CODE_ERROR_RET | CODE_ERROR_ABSENCE; // 100001.. = errore ret. ..00 = errore assenza
                 Registers::programCounter++;
             }
         }
@@ -352,8 +352,48 @@ map<string, function<void()>> Gigi::Assembly::asmInstructions = { // assegnazion
     {
         "ret", // ritorna alla linea di codice dopo l'esecuzione di una funzione
         []() {
+            // se ret viene chiamato al di fuori di una funzione, l'interpretazione termina (come return 0; nella funzione main)
+            if (Registers::callStack.size() == 0) {
+                Interpreter::running = false;
+                Registers::interrupted = true;
+                return;
+            }
             Registers::programCounter = Registers::callStack.top();
             Registers::callStack.pop();
+        }
+    },
+    {
+        "imp", // implement. include le istruzioni di un altro file assembly alla fine dello script corrente e vengono eseguite fino al ret finale aggiunto alla fine di script moduli
+        []() { // DA TESTARE
+            string buf = formatDataString(*Registers::getData(-1));
+
+            int startinc = Interpreter::programInstructions.size();
+
+            fstream stream;
+            stream.open("./" + buf + ".gasm");
+            if (!stream.is_open() || stream.fail()) throw CODE_ERROR_FILE | CODE_ERROR_ABSENCE;
+
+            vector<string> libBuffer;
+            string line;
+            while (std::getline(stream, line)) {
+                libBuffer.push_back(line);
+            }
+            stream.close();
+
+            // processazione script
+            for (string inst : libBuffer) {
+                /*
+                    qua devo sostituire ogni riferimento alle linee di codice dello script modulo e aggiungergli un offset basato sulla dimensione dello script principale
+                    però proprio non tengo voglia ora che è tardi e so stanco
+                */
+            }
+
+            for (string l : libBuffer) {
+                Interpreter::programInstructions.push_back(l);
+            }
+
+            Registers::callStack.push(Registers::programCounter);
+            Registers::programCounter = startinc - 1;
         }
     }
 };

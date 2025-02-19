@@ -12,8 +12,6 @@
 
 #include "Assembly.hpp"
 
-#include "../System/System.hpp"
-
 typedef Gigi::LanguageManager lm;
 
 // GigiRegisters

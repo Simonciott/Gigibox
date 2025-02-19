@@ -8,8 +8,8 @@ Sprite::Sprite(Image& img) {
 	Sprite::texture = &img;
 }
 
-void Sprite::Draw(int x, int y) {
-	// hooks
+void Sprite::Draw() {
+	// clamping posizione per prevenire errori out of bounds
 	if (*xHook + texture->width >= SCREEN_WIDTH)
 		*xHook = SCREEN_WIDTH - texture->width;
 	if (*yHook + texture->height >= SCREEN_HEIGHT)
@@ -19,14 +19,7 @@ void Sprite::Draw(int x, int y) {
 	if (*yHook < 0)
 		*yHook = 0;
 
-	x = *xHook;
-	y = *yHook;
-	visible = *visibleHook;
-
-	if (!visible) return;
-
-	if (!x) Sprite::x = x;
-	if (!y) Sprite::y = y;
+	if (!visibleHook) return;
 
 	for (int i = 0; i < texture->height; i++) {
 		for (int j = 0; j < texture->width; j++) {
@@ -36,7 +29,7 @@ void Sprite::Draw(int x, int y) {
 
 			if (texture->alpha && color == texture->alphaColor) continue;
 
-			BuffersManager::getBackBuffer()->setPixel(Vector2u(j + x, i + y), color);
+			BuffersManager::getBackBuffer()->setPixel(Vector2u(j + (unsigned int)xHook, i + (unsigned int)yHook), color);
 		}
 	}
 }

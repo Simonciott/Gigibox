@@ -23,6 +23,8 @@
 #include "../Game/Sprite.hpp"
 #include "../Game/Texture.hpp"
 
+#include "../System/System.hpp"
+
 // TURN_BITS_TO_ZERO(0b11010011, 0b01100001) = 0b10010010
 #define TURN_BITS_TO_ZERO(VAR, NUMBER) VAR = (VAR | NUMBER) ^ NUMBER
 

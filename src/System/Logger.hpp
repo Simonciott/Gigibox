@@ -2,6 +2,7 @@
 
 #include "LanguageManager.hpp"
 #include "CommonFunctions.hpp"
+#include "ErrorCodes.hpp"
 
 #include <iostream>
 
@@ -17,6 +18,7 @@
 #define LOGGER_WARNING 32
 
 #define LOGGER_ALL (LOGGER_ERROR | LOGGER_WARNING | LOGGER_IN | LOGGER_DESCRIPTION | LOGGER_PROCEDURES)
+
 
 using std::cout;
 
