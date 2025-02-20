@@ -104,8 +104,6 @@ map<string, function<void()>> Gigi::Assembly::asmInstructions = { // assegnazion
 
                     if (!stream.is_open() || stream.fail()) throw CODE_ERROR_FILE | CODE_ERROR_ABSENCE;
 
-                    //cout << stream.is_open() << endl << stream.bad() << endl << stream.fail() << endl;
-
                     string filedata;
 
                     unsigned char charbuffer;
@@ -149,7 +147,7 @@ map<string, function<void()>> Gigi::Assembly::asmInstructions = { // assegnazion
 
                 break;
             }
-            case 3: { // crea uno sprite. registro A: indice texture. B: indirizzo salvataggio dei dati sprite nel vettore. ~~C: visibilità sprite alla creazione~~
+            case 3: { // crea uno sprite. registro A: indice texture. B: indirizzo salvataggio dei dati sprite nel vettore. C: visibilità sprite alla creazione
                 try {
                     int txtind = *Registers::getData(*Registers::getData(-1));
                     Registers::storedSprites.push_back(Sprite(Registers::storedImages[txtind]));
@@ -165,7 +163,7 @@ map<string, function<void()>> Gigi::Assembly::asmInstructions = { // assegnazion
                     sprRef->yHook = (sprDataIndx + 2);
                     sprRef->visibleHook = (bool*)(sprDataIndx + 3);
 
-                    *sprRef->visibleHook = true;
+                    *sprRef->visibleHook = (bool)*Registers::getData(-3);
                 }
                 catch (int er) {
                     throw CODE_ERROR_SPRITE | CODE_ERROR_GENERAL; // 11010... = errore sprite
@@ -260,7 +258,7 @@ map<string, function<void()>> Gigi::Assembly::asmInstructions = { // assegnazion
 
                     int toAl = buffer.size();
                     if (index > 2) {
-                        *Registers::getData(pos + size + 1) = ' ';
+                        *Registers::getData(pos + size + 1) = SPACE;
                         toAl++;
                     }
                     Registers::createMemoryIfNone(toAl);
@@ -363,6 +361,19 @@ map<string, function<void()>> Gigi::Assembly::asmInstructions = { // assegnazion
         }
     },
     {
+        "psa", // push argument. aggiunge allo stack argument un argomento. usato per funzioni
+        []() {
+            argStack.push_back(getArgFromTopStr(0));
+        }
+    },
+    {
+        "ppa", // pop argument. toglie l'argomento superficiale dallo stack e lo contiene ad un indirizzo
+        []() {
+            *Registers::getData(getArgFromTop(0)) = stoi(argStack[argStack.size() - 2]);
+            argStack.pop_back();
+        }
+    },
+    {
         "imp", // implement. include le istruzioni di un altro file assembly alla fine dello script corrente e vengono eseguite fino al ret finale aggiunto alla fine di script moduli
         []() { // DA TESTARE
             string buf = formatDataString(*Registers::getData(-1));
@@ -381,11 +392,48 @@ map<string, function<void()>> Gigi::Assembly::asmInstructions = { // assegnazion
             stream.close();
 
             // processazione script
-            for (string inst : libBuffer) {
+            for (string& inst : libBuffer) {
                 /*
                     qua devo sostituire ogni riferimento alle linee di codice dello script modulo e aggiungergli un offset basato sulla dimensione dello script principale
                     però proprio non tengo voglia ora che è tardi e so stanco
                 */
+
+                string instruction = divideString(inst)[0];
+                vector<string> arguments = divideString(inst);
+
+                arguments = reverseStrings(arguments);
+                arguments.pop_back();
+                arguments = reverseStrings(arguments);
+
+                string toOffsetArguments[] = {
+                    "jmp",
+                    "je",
+                    "jne",
+                    "jg",
+                    "jge",
+                    "jl",
+                    "jle"
+                };
+
+                for (string argument : arguments) {
+                    int value = argument.find("$");
+                    if (value == string::npos)
+                        continue;
+                    int instrindx = -1; // instruction index
+                    for (int i = 0; i < 7; i++) { // 7 = dimensione array toOffsetArguments
+                        if (instruction == toOffsetArguments[i]) {
+                            instrindx = i;
+                            break;
+                        }
+                    }
+                    if (instrindx < 0)
+                        continue;
+
+                    argument.erase(value, 1);
+                    argument = "$" + std::to_string(stoi(argument) + startinc);
+
+                }
+                inst = instruction + joinStringsSpace(arguments);
             }
 
             for (string l : libBuffer) {

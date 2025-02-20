@@ -78,6 +78,10 @@ int main(int argc, const char* argv[])
         if (!programstream.is_open()) throw CODE_ERROR_FILE;
 
         while (std::getline(programstream, line)) {
+            while (line[0] == SPACE || line[0] == TAB) {
+                line.erase(0, 1);
+            }
+
             int com = line.find(";");
             if (com != string::npos) line.erase(com, line.size());
 

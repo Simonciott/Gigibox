@@ -71,6 +71,41 @@ memory.push_back(value);
 ```cpp
 *to = where;
 ```
+## MAL
+- Description: Pushes back the value of the argument in memory
+- Arguments: 1
+    1. value: the value to push back
+- Usage:
+    - `mal $8 ; adds 8 to memory`
+    - `mal 4 ; adds the value stored at address 4 to memory`
+    - `mal $a ; adds the value of A to memory`
+- C++ equivalent:
+```cpp
+memory.push_back(value);
+```
+## PPA
+- Description: Pops the top argument from the argument stack and stores it at the address in the argument
+- Arguments: 1
+    1. to: Where to store the popped argument
+- Usage:
+    - `ppa a ; pops the top argument and stores it in register a`
+    - `ppa $10 ; pops the top argument and stores it at address 10`
+- C++ equivalent:
+```cpp
+*to = argumentStack.top();
+argumentStack.pop();
+```
+## PSA
+- Description: Pushes a value at the top of the argument stack and stores it at the address in the argument
+- Arguments: 1
+    1. value: The value to push to the argument stack
+- Usage:
+    - `ppa $a ; pushes the value of register a to the argument stack`
+    - `ppa $10 ; pushes 10 to the argument stack`
+- C++ equivalent:
+```cpp
+argumentStack.push_back(value);
+```
 ## STA
 - Description: Stores the contents of register A to the address provided
 - Arguments: 1
@@ -381,6 +416,16 @@ int main(void){
 ```
 
 # Miscellaneous
+## IMP
+- Description: Includes another script to the main one. Needs a declared string for usage
+- Arguments: 1
+    1. script: The string containing the file name of the script (excluding extension)
+- Usage:
+    - `imp $5 ; includes the script with the file name stored at address 5`
+- C++ equivalent:
+```cpp
+#include "script.gasm"
+```
 ## INT
 - Description: Interrupts code interpretation to give control back to the display loop
 - Arguments: 1

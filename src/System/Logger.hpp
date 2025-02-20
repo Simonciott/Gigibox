@@ -3,12 +3,9 @@
 #include "LanguageManager.hpp"
 #include "CommonFunctions.hpp"
 #include "ErrorCodes.hpp"
+#include "ConstantCharacters.hpp"
 
 #include <iostream>
-
-#define NEWL '\n'
-#define TAB '\t'
-#define INDRES ':' + TAB // indented result
 
 #define LOGGER_PROCEDURES 1
 #define LOGGER_DESCRIPTION 2

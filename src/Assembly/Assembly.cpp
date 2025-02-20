@@ -159,18 +159,8 @@ void Gigi::Assembly::Interpreter::InterpretLine(string str) {
     int commenti = str.find(";");
     if (commenti != string::npos) str.erase(commenti, str.size());
 
-    vector<string> segments;
-
     // separa str in pezzetti
-    while (!str.empty()) {
-        int substrSize = str.find(" ");
-        if (substrSize == string::npos) substrSize = str.size();
-
-        string strbuffer = str.substr(0, substrSize);
-
-        if (!strbuffer.empty()) segments.push_back(strbuffer);
-        str.erase(0, substrSize + 1);
-    }
+    vector<string> segments = divideString(str);
 
     if (!segments.size()) return;
 
