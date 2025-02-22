@@ -10,19 +10,13 @@ Sprite::Sprite(Image& img) {
 
 void Sprite::Draw() {
 	// clamping posizione per prevenire errori out of bounds
-	if (*xHook + texture->width >= SCREEN_WIDTH)
-		*xHook = SCREEN_WIDTH - texture->width;
-	if (*yHook + texture->height >= SCREEN_HEIGHT)
-		*yHook = SCREEN_HEIGHT - texture->height;
-	if (*xHook < 0)
-		*xHook = 0;
-	if (*yHook < 0)
-		*yHook = 0;
 
 	if (!visibleHook) return;
 
 	for (int i = 0; i < texture->height; i++) {
 		for (int j = 0; j < texture->width; j++) {
+			if (*xHook + j >= SCREEN_WIDTH || *xHook + j < 0 || *yHook + i >= SCREEN_HEIGHT || *yHook + i < 0) continue;
+
 			int pxindex = texture->pixels[texture->width * i + j];
 			if (pxindex >= texture->palette.size()) pxindex = 0;
 			Color color = texture->palette[pxindex];

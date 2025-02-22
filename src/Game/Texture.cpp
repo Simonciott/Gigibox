@@ -1,26 +1,55 @@
 #include "Texture.hpp"
 
+#include <stdexcept>
+
 using Gigi::Image;
 
 Image::Image(uint8_t* data8b, size_t size) {
-	pixelsSize = size;
+	try {
+		pixelsSize = size;
 
-	width = data8b[0] + 1;
-	height = data8b[1] + 1;
+		width = data8b[0] + 1;
+		height = data8b[1] + 1;
 
-	for (int i = 0; i < data8b[2] + 1; i++) {
-		palette.push_back(Color(data8b[3 * (i + 1)], data8b[3 * (i + 1) + 1], data8b[3 * (i + 1) + 2]));
+		for (int i = 0; i < data8b[2] + 1; i++) {
+			palette.push_back(Color(data8b[3 * (i + 1)], data8b[3 * (i + 1) + 1], data8b[3 * (i + 1) + 2]));
+		}
+
+		int indexAfterPalette = 3 + 3 * (data8b[2] + 1) + 2;
+
+		alpha = (bool)data8b[indexAfterPalette + 0];
+		alphaColor = palette[data8b[indexAfterPalette + 1]];
+
+		pixels = (uint8_t*)malloc(width * height);
+
+		for (int i = indexAfterPalette; i < indexAfterPalette + width * height; i++) {
+			pixels[i - indexAfterPalette] = data8b[i];
+		}
 	}
+	catch (const std::out_of_range& err) { // imposta texture default in caso di errore
+		width = 9;
+		height = 9;
 
-	int indexAfterPalette = 3 + 3 * (data8b[2] + 1) + 2;
+		palette.push_back(Color::Black);
+		palette.push_back(Color::White);
+		palette.push_back(Color::Green);
 
-	alpha = (bool)data8b[indexAfterPalette + 0];
-	alphaColor = palette[data8b[indexAfterPalette + 1]];
+		alpha = true;
+		alphaColor = palette[2];
 
-	pixels = (uint8_t*)malloc(width * height);
-
-	for (int i = indexAfterPalette; i < indexAfterPalette + width * height; i++) {
-		pixels[i - indexAfterPalette] = data8b[i];
+		uint8_t smileypixels[81]{
+			0x02, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x02,
+			0x02, 0x00, 0x01, 0x01, 0x01, 0x01, 0x01, 0x00, 0x02,
+			0x00, 0x01, 0x01, 0x00, 0x01, 0x00, 0x01, 0x01, 0x00,
+			0x00, 0x01, 0x01, 0x00, 0x01, 0x00, 0x01, 0x01, 0x00,
+			0x00, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x00,
+			0x00, 0x01, 0x00, 0x01, 0x01, 0x01, 0x00, 0x01, 0x00,
+			0x00, 0x01, 0x01, 0x00, 0x00, 0x00, 0x01, 0x01, 0x00,
+			0x02, 0x00, 0x01, 0x01, 0x01, 0x01, 0x01, 0x00, 0x02,
+			0x02, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x02
+		};
+		pixels = (uint8_t*)malloc(81);
+		for (int i = 0; i < 81; i++)
+			pixels[i] = smileypixels[i];
 	}
-
 }

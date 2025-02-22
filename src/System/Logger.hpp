@@ -23,7 +23,7 @@ typedef Gigi::LanguageManager LM;
 
 namespace Gigi {
 	struct Logger {
-		static void logError(string in, string description, string procedure, int errorcode = 0, int showcode = LOGGER_ALL) {
+		static void logError(string in, string description, string procedure, int errorcode = 0, int showcode = LOGGER_ALL, string additionalMessages) {
 			if (!areBitsOn(showcode, LOGGER_ERROR)) return;
 			string message =
 				LM::getMessage("logger.error") + NEWL
@@ -31,6 +31,7 @@ namespace Gigi {
 				+ (areBitsOn(showcode, LOGGER_CODE) ? (TAB + LM::getMessage("logger.error.code") + INDRES + std::to_string(errorcode) + NEWL) : "")
 				+ (areBitsOn(showcode, LOGGER_DESCRIPTION) ? (TAB + LM::getMessage("logger.error.description") + INDRES + LM::getMessage(description) + NEWL) : "")
 				+ (areBitsOn(showcode, LOGGER_PROCEDURES) ? (TAB + LM::getMessage("logger.procedures") + INDRES + LM::getMessage(procedure) + NEWL) : "")
+				+ TAB + additionalMessages + NEWL
 				+ NEWL;
 			cout << message;
 		}

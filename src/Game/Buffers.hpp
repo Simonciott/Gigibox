@@ -27,5 +27,8 @@ namespace Gigi {
 		static void swapBuffers();
 
 		static void clearBackBuffer(Color color);
+
+		// codice per generare una schermata con la matematica
+		static void generatePlaceholderGraphic(bool which);
 	};
 }

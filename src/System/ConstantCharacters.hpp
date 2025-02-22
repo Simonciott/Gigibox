@@ -1,3 +1,5 @@
+#pragma once
+
 #define NEWL '\n'
 #define TAB '\t'
 #define INDRES ':' + TAB // indented result

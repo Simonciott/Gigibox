@@ -1,4 +1,6 @@
-#define CODE_ERROR_GENERAL	0b10
+#pragma once
+
+#define CODE_ERROR_GENERAL	2
 #define CODE_ERROR_ABSENCE 0
 
 #define CODE_ERROR_TEXTURE		0b11100000

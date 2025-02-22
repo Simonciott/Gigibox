@@ -38,3 +38,16 @@ void Gigi::BuffersManager::clearBackBuffer(Color color) {
 		}
 	}
 }
+
+// codice per generare una schermata con la matematica
+void Gigi::BuffersManager::generatePlaceholderGraphic(bool which) {
+	if(which)
+		for (int i = 0; i < SCREEN_HEIGHT; i++)
+			for (int j = 0; j < SCREEN_WIDTH; j++)
+				getBackBuffer()->setPixel({ (unsigned int)j, (unsigned int)i }, Color(j, (i + j) / 2, i));
+
+	else
+		for (int i = 0; i < SCREEN_HEIGHT; i++)
+			for (int j = 0; j < SCREEN_WIDTH; j++)
+				getBuffer()->setPixel({ (unsigned int)j, (unsigned int)i }, Color((i + j) / 2, i, j));
+}

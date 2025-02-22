@@ -98,5 +98,12 @@ map<string, vector<string>> Gigi::LanguageManager::messages = {
 			"Impossibile aprire il file. Hai scritto il nome o il percorso correttamente?",
 			"Unable to open file. Did you write the name or path correctly?"
 		}
+	},
+	{
+		"logger.error.assembly.codeline",
+		{
+			"Linea di codice",
+			"Code line"
+		}
 	}
 };

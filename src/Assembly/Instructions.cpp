@@ -99,7 +99,7 @@ map<string, function<void()>> Gigi::Assembly::asmInstructions = { // assegnazion
 
                 try {
                     fstream stream;
-                    stream.open("./" + buf + ".gimg"); // DID: RISOLVERE QUESTO (quando si usa un nome file dinamico (a variabile), il file dà errori e non si apre)
+                    stream.open(Arguments::directory + buf + ".gimg"); // DID: RISOLVERE QUESTO (quando si usa un nome file dinamico (a variabile), il file dà errori e non si apre)
                     // RISOLTO! NOTA: NON DARE ALLE STRINGHE NULL ADDIZIONALI. INTERFERIRANNO CON TUTTO
 
                     if (!stream.is_open() || stream.fail()) throw CODE_ERROR_FILE | CODE_ERROR_ABSENCE;
@@ -376,12 +376,14 @@ map<string, function<void()>> Gigi::Assembly::asmInstructions = { // assegnazion
     {
         "imp", // implement. include le istruzioni di un altro file assembly alla fine dello script corrente e vengono eseguite fino al ret finale aggiunto alla fine di script moduli
         []() { // DA TESTARE
-            string buf = formatDataString(*Registers::getData(-1));
+            string buf = formatDataString(*Registers::getData(getArgFromTop(0)));
+            for (string inc : Registers::includedScripts)
+                if (buf == inc) return;
 
             int startinc = Interpreter::programInstructions.size();
 
             fstream stream;
-            stream.open("./" + buf + ".gasm");
+            stream.open(Arguments::directory + buf + ".gasm");
             if (!stream.is_open() || stream.fail()) throw CODE_ERROR_FILE | CODE_ERROR_ABSENCE;
 
             vector<string> libBuffer;
@@ -439,9 +441,24 @@ map<string, function<void()>> Gigi::Assembly::asmInstructions = { // assegnazion
             for (string l : libBuffer) {
                 Interpreter::programInstructions.push_back(l);
             }
+            Registers::includedScripts.push_back(buf);
 
             Registers::callStack.push(Registers::programCounter);
             Registers::programCounter = startinc - 1;
+        }
+    },
+    {
+        "bsl", // bitshift left
+        []() {
+            short* num = Registers::getData(getArgFromTop(0));
+            *num = *num << getArgFromTop(1);
+        }
+    },
+    {
+        "bsr", // bitshift right
+        []() {
+            short* num = Registers::getData(getArgFromTop(0));
+            *num = *num >> getArgFromTop(1);
         }
     }
 };

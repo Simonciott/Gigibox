@@ -60,6 +60,8 @@ void Gigi::Assembly::Registers::AddRegistersToData() {
 
 uint8_t Gigi::Assembly::Registers::logicalFlag;
 
+vector<string> Gigi::Assembly::Registers::includedScripts;
+
 /*
     una funzione per ottenere i dati del vettore data in modo più pulito, aggiunge un offset all'indice/indirizzo quando viene utilizzato
     usare un numero negativo per negare l'offset e accedere alla memoria dei registri
@@ -195,7 +197,7 @@ void Gigi::Assembly::Interpreter::StepProgram() {
         Registers::programCounter++;
     }
     catch (int e) {
-        Logger::logError("Gigi_AssemblyInterpreter::StepProgram()", "logger.error.assembly.illegalcode", "logger.error.assembly.haltproc", e, LOGGER_ALL);
+        Logger::logError("Gigi::Assembly::Interpreter::StepProgram()", "logger.error.assembly.illegalcode", "logger.error.assembly.haltproc", e, LOGGER_ALL, lm::getMessage("logger.error.assembly.codeline") + ": " + std::to_string(Registers::programCounter));
         Interpreter::running = false;
     }
 }

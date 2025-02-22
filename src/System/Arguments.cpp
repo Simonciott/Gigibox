@@ -14,6 +14,7 @@ string Gigi::languages[AVAILABLE_LANGUAGES] = {
 
 int Arguments::currentLang = 0;
 string Arguments::program = "./dvd.gasm";
+string Arguments::directory = "";
 
 vector<pair<string, string>> Arguments::availableArgs {
 	{ "language", "l" }, // che lingua scegliere

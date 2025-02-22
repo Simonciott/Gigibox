@@ -1,73 +1,36 @@
-#include <SFML/Graphics.hpp>
-
-#include <map>
 #include <string>
 #include <iostream>
-#include <vector>
 #include <cstring>
 #include <fstream>
-#include <functional>
-//#include <stack>
 
-#include "System/CommonFunctions.hpp"
+#include <SFML/Graphics.hpp>
+
+#include "System/System.hpp"
 
 #include "Game/Constants.hpp"
-#include "Game/Buffers.hpp"
 #include "Game/Texture.hpp"
 #include "Game/Sprite.hpp"
-
-#include "Assembly/Assembly.hpp"
 #include "Game/Input.hpp"
 
-#include "System/Arguments.hpp"
-#include "System/Logger.hpp"
+#include "Assembly/Assembly.hpp"
 
 using namespace Gigi;
 using namespace Gigi::Assembly;
 
-using sf::Image;
 using sf::Color;
 using sf::Texture;
 using sf::Vector2f, sf::Vector2u;
 
 int main(int argc, const char* argv[])
 {
+
     for (int i = 1; i < argc; i += 2) {
         Arguments::processArgument(argv, i);
     }
+    Arguments::directory = getPathDirectoryPath(Arguments::program);
 
     // sprite per metterci sopra il buffer sotto forma di texture
     sf::Sprite Gigi_BackBufferSprite(BuffersManager::texture);
-
-    /*
-    
-    codice per generare una schermata con la matematica
-
-    for (int i = 0; i < SCREEN_HEIGHT; i++) {
-        for (int j = 0; j < SCREEN_WIDTH; j++) {
-            BuffersManager::getBackBuffer()->setPixel({ (unsigned int)j, (unsigned int)i }, Color(j, (i + j) / 2, i));
-        }
-    }
-
-    for (int i = 0; i < SCREEN_HEIGHT; i++) {
-        for (int j = 0; j < SCREEN_WIDTH; j++) {
-            BuffersManager::getBuffer()->setPixel({ (unsigned int)j, (unsigned int)i }, Color((i + j) / 2, i, j));
-            //Gigi_BackBufferTexture::getBackBuffer()->setPixel({ (unsigned int)j, (unsigned int)i }, Color(j, (i + j) / 2, i));
-        }
-    }*/
-
-    /* RIP dato immagine manualmente scritto
-    uint8_t img_data[] = {0x08, 0x08, 0x02, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0x00, 0xff, 0x00, 0x01, 0x02,
-            0x02, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x02,
-            0x02, 0x00, 0x01, 0x01, 0x01, 0x01, 0x01, 0x00, 0x02,
-            0x00, 0x01, 0x01, 0x00, 0x01, 0x00, 0x01, 0x01, 0x00,
-            0x00, 0x01, 0x01, 0x00, 0x01, 0x00, 0x01, 0x01, 0x00,
-            0x00, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x00,
-            0x00, 0x01, 0x00, 0x01, 0x01, 0x01, 0x00, 0x01, 0x00,
-            0x00, 0x01, 0x01, 0x00, 0x00, 0x00, 0x01, 0x01, 0x00,
-            0x02, 0x00, 0x01, 0x01, 0x01, 0x01, 0x01, 0x00, 0x02,
-            0x02, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x02
-    };*/
 
     Registers::AddRegistersToData();
 
@@ -132,15 +95,7 @@ int main(int argc, const char* argv[])
         Registers::interrupted = !Interpreter::running;
 
         while (!Registers::interrupted) {
-            //cout << Gigi_AssemblyInterpreter::programInstructions[Gigi_AssemblyRegisters::programCounter] << endl;
             Interpreter::StepProgram();
-
-            //cout << Gigi_AssemblyRegisters::programCounter << endl << endl;;
-
-            /*for (int i = 0; i < Gigi_AssemblyRegisters::data.size(); i++) {
-                cout << *Gigi_AssemblyRegisters::getData(i - REGISTERS_IN_MEMORY) << endl;
-            }*/
-            //cout << "\n\nfine stampa\n\n";
         }
 
         BuffersManager::clearBackBuffer(Color::Black);

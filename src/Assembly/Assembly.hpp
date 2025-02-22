@@ -67,6 +67,8 @@ namespace Gigi::Assembly {
         */
         static uint8_t logicalFlag;
 
+        static vector<string> includedScripts;
+
         /*
         una matrice con tutti i dati disponibili al programma.
         i registri sono conservati qua dentro, con posti riservati alle prime posizioni (o come si dici in termini tecnici "davanti la matrice") del vettore.

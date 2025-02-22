@@ -16,6 +16,7 @@ namespace Gigi {
 
 		static int currentLang;
 		static string program;
+		static string directory;
 
 		// argomenti disponibili. prima stringa è l'argomento acronomizzato, seconda è il nome intero
 		static vector<pair<string, string>> availableArgs;

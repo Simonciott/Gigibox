@@ -1,0 +1,60 @@
+; GIGI ASSEMBLY ESSENTIALS LIBRARY
+; (WIP)
+; THIS TAKES SOME SPACE IN MEMORY FOR ITSELF
+;
+; ADDRESSES FROM 0 TO 2: REGISTERS TEMPORARY STORAGE
+; ADDRESS 3: RANDOMNESS SEED
+
+fnc transferRegisters
+	mov $0 $a
+	mov $1 $b
+	mov $2 $c
+	ret
+	
+fnc returnRegisters
+	mov a 0
+	mov b 1
+	mov c 2
+	ret
+
+fnc createTexture
+	call transferRegisters
+	
+	ppa a
+	ppa b
+	int $2
+	
+	call returnRegisters
+	ret
+	
+fnc createSprite
+	call transferRegisters
+
+	ppa a
+	ppa b
+	ppa c
+	int $3
+	
+	call returnRegisters
+	ret
+
+fnc setSeed
+	ppa $3
+	ret
+
+fnc random
+	call transferRegisters
+	
+	lda 3
+	mov b $24135
+	mov c $32767
+	
+	mul $b
+	; add 0
+	mod $c
+	
+	sta $3
+	
+	ret
+	
+ret

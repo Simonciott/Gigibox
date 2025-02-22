@@ -4,6 +4,7 @@
 bool areBitsOn(int a, int b) {
 	return (a & b) == b;
 }
+
 vector<string> divideString(string str) {
     vector<string> segments;
 
@@ -35,4 +36,20 @@ string joinStringsSpace(vector<string> str) {
     }
 
     return buffer;
+}
+
+string reverseString(string str) {
+    string buffer;
+    for (int i = str.size() - 1; i >= 0; i--)
+        buffer += str[i];
+    return buffer;
+}
+
+string getPathDirectoryPath(string path) {
+    path = reverseString(path);
+    int slash = path.find_first_of('/');
+    if (slash == string::npos)
+        return "";
+    path.erase(0, slash - 1);
+    return reverseString(path);
 }
