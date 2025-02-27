@@ -21,8 +21,9 @@ namespace Gigi {
 		// stessa cosa la prorietà visible
 
 		Image* texture;
+		vector<Color> palette;
 
-		Sprite(Image& img);
+		Sprite(Image& img, vector<Color> colors);
 
 		void Draw();
 	};
