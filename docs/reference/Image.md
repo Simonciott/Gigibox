@@ -24,17 +24,10 @@ Namespace: Gigi
 - pixels
     - type: uint8_t*
     - description: a buffer of the image's pixels
-- tpixelsSize
+- <ins>pixelsSize</ins>
     - type: size_t
     - description: the size of the pixels buffer
 
 ## Functions
 - Gigi_Image(uint8_t* data8b, size_t size = 0)
     - description: default constructor
-
-# Data formatting
-| index | 0 |
-|-------|---|
-|property|img|
-
-- img: image index in the image vector

@@ -129,10 +129,10 @@ map<string, function<void()>> Gigi::Assembly::asmInstructions = { // assegnazion
                         data[i] = filedata[i];
                     }
 
-                    Registers::storedImages.push_back(Gigi::Image(data));
+                    Registers::storedImages.push_back(Gigi::Assembly::Image(Registers::getData(*Registers::getData(-2)), data));
 
                     int textureIndex = Registers::storedImages.size() - 1;
-                    Gigi::Image* textureref = &Registers::storedImages[textureIndex];
+                    //Gigi::Image* textureref = &Registers::storedImages[textureIndex];
 
                     // aggiunta dati riconoscimento al vettore
                     int textreDataIndex = *Registers::getData(-2);
@@ -147,23 +147,23 @@ map<string, function<void()>> Gigi::Assembly::asmInstructions = { // assegnazion
 
                 break;
             }
-            case 3: { // crea uno sprite. registro A: indice texture. B: indirizzo salvataggio dei dati sprite nel vettore. C: visibilità sprite alla creazione
+            case 3: { // crea uno sprite. registro A: indice texture. B: indirizzo salvataggio dei dati sprite nel vettore. ~~C: visibilità sprite alla creazione~~ __C: indirizzo palette__
                 try {
-                    int txtind = *Registers::getData(*Registers::getData(-1));
-                    Registers::storedSprites.push_back(Sprite(Registers::storedImages[txtind]));
-                    int last = Registers::storedSprites.size() - 1;
+                    //int txtind = *Registers::getData(*Registers::getData(-1));
+                    Registers::storedSprites.push_back(Sprite(Registers::getData(*Registers::getData(-2)), *Registers::getData(-1)));
+                    //int last = Registers::storedSprites.size() - 1;
 
                     // salvataggio sprite nel vettore
-                    Sprite* sprRef = &Registers::storedSprites[last];
-                    Registers::createMemoryIfNone(*Registers::getData(-2) + 3);
+                    Sprite* sprRef = &Registers::storedSprites.back();
+                    Registers::createMemoryIfNone(*Registers::getData(-2) + 5);
                     short* sprDataIndx = Registers::getData(*Registers::getData(-2)); // riferenza all'indirizzo in data dove lo sprite verrà salvato
 
                     *sprDataIndx = *Registers::getData(-1); // indice texure
-                    sprRef->xHook = (sprDataIndx + 1);
-                    sprRef->yHook = (sprDataIndx + 2);
-                    sprRef->visibleHook = (bool*)(sprDataIndx + 3);
+                    sprDataIndx[1] = *Registers::getData(-3); // indice palette
 
-                    *sprRef->visibleHook = (bool)*Registers::getData(-3);
+                    for (int i = 0; i < 5; i++) {
+                        sprRef->spriteIndex[i] = sprDataIndx[i];
+                    }
                 }
                 catch (int er) {
                     throw CODE_ERROR_SPRITE | CODE_ERROR_GENERAL; // 11010... = errore sprite

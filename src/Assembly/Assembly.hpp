@@ -20,8 +20,8 @@
 #include <fstream>
 #include <stack>
 
-#include "../Game/Sprite.hpp"
-#include "../Game/Texture.hpp"
+#include "../Game/ASprite.hpp"
+#include "../Game/ATexture.hpp"
 
 #include "../System/System.hpp"
 
@@ -41,8 +41,6 @@ using std::stack;
 using std::cout;
 using std::stoi;
 
-using Gigi::Sprite;
-
 // GigiRegisters
 
 namespace Gigi::Assembly {
@@ -54,8 +52,8 @@ namespace Gigi::Assembly {
 
         static bool interrupted;
 
-        static vector<Sprite> storedSprites;
-        static vector<Image> storedImages;
+        static vector<Assembly::Sprite> storedSprites;
+        static vector<Assembly::Image> storedImages;
 
         /*
         usa i bit del numero 8 bit per significare quali flag sono alzate

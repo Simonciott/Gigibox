@@ -101,8 +101,8 @@ int main(int argc, const char* argv[])
         BuffersManager::clearBackBuffer(Color::Black);
 
         for (int i = 0; i < Registers::storedSprites.size(); i++) {
-            Sprite& spr = Registers::storedSprites[i];
-            spr.Draw();
+            Assembly::Sprite& spr = Registers::storedSprites[i];
+            spr.Draw(Registers::storedImages);
         }
 
         BuffersManager::swapBuffers();

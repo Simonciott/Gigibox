@@ -19,7 +19,9 @@ string Arguments::directory = "";
 vector<pair<string, string>> Arguments::availableArgs {
 	{ "language", "l" }, // che lingua scegliere
 	{ "program", "P" }, // il nome/percorso del file da interpretare
-	{ "input", "I" } // profilo input da utilizzare
+	{ "input", "I" }, // profilo input da utilizzare
+	{ "showcode", "c" }, // mostra le istruzioni eseguire in tempo reale su una finestra secondaria
+	{ "memory", "m" } // mostra la memoria e i registri in tempo reale sulla finestra secondaria
 };
 
 void Arguments::processArgument(const char** arguments, int argIndex) {
