@@ -4,12 +4,21 @@
 
 using Gigi::Assembly::Image;
 
-Gigi::Image Image::Smiley = Gigi::Image(Gigi::Image::Smiley);
+Gigi::Image Image::Smiley = Gigi::Image::Smiley;
 
 Image::Image(short* address, uint8_t* data8b, size_t size) {
 	pixelsSize = size;
 	try {
 		processImageData(data8b);
+	}
+	catch (const std::out_of_range& err) { // imposta texture default in caso di errore
+		processImageData(Smiley);
+	}
+}
+Image::Image(short* address, Gigi::Image img) {
+	pixelsSize = img.pixelsSize;
+	try {
+		processImageData(img);
 	}
 	catch (const std::out_of_range& err) { // imposta texture default in caso di errore
 		processImageData(Smiley);

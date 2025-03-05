@@ -14,7 +14,7 @@ Namespace: Gigi::Assembly
 - pixels
     - type: uint8_t*
     - description: a buffer of the image's pixels
-- <ins>tpixelsSize</ins>
+- <ins>pixelsSize</ins>
     - type: size_t
     - description: the size of the pixels buffer
 

@@ -27,6 +27,10 @@ namespace Gigi::Assembly {
 
 
 		Image(short* address, uint8_t* data8b, size_t size = 0);
+		Image(short* address, Gigi::Image img);
+		~Image() {
+			free(pixels);
+		}
 
 	private:
 		void processImageData(uint8_t* data);
