@@ -25,8 +25,8 @@ string Gigi::Assembly::Registers::registerNames[]{
         "in" // registro per contenere gli input/controlli della tastiera/controller
 };
 
-vector<Gigi::Assembly::Sprite> Gigi::Assembly::Registers::storedSprites;
-vector<Gigi::Assembly::Image> Gigi::Assembly::Registers::storedImages;
+vector<Sprite> Gigi::Assembly::Registers::storedSprites;
+vector<Gigi::Image> Gigi::Assembly::Registers::storedImages;
 
 // in main, while(!interrupted) continua interpretazione assembly. viene reso false dall'istruzione int
 bool Gigi::Assembly::Registers::interrupted = false;
@@ -121,7 +121,6 @@ int Gigi::Assembly::getArgFromTop(int index) {
         if (i == REGISTERS_IN_MEMORY - 1)
             buffern = stoi(buffer);
     }
-    if (!value && buffern < 0) buffern *= -1;
 
     // if mov a 4, $a = 4 and a = -1 ($4 = 4 and 4 = data[4])
     if (value ^ isRegister) return buffern; // return if (value && !isRegister)$5 || (!value && isRegister)a

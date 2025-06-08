@@ -14,18 +14,16 @@ namespace Gigi {
 
 		// gigibox exclusive hookup variables
 		// non c'ho voglia di cambiare il nome frate
-		short x = 0;
-		short y = 0;
-		bool visible = true;
+		short* xHook = nullptr;
+		short* yHook = nullptr;
+		bool* visibleHook = nullptr;
 
 		// stessa cosa la prorietà visible
 
 		Image* texture;
-		vector<Color> palette;
 
 		Sprite(Image& img);
-		Sprite(Image& img, vector<Color> colors);
 
-		virtual void Draw();
+		void Draw();
 	};
 }

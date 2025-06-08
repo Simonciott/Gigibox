@@ -31,6 +31,16 @@ Namespace: Gigi
 ## Functions
 - Gigi_Sprite(Gigi_Image& img)
     - description: default constructor
-- Draw()
+- Draw(<ins>x, y</ins>)
     - type: void
-    - description: draws the sprite's pixels to the back buffer.
+    - description: draws the sprite's pixels to the back buffer. <ins>if x or y are null, they default to the object's property coordinates.</ins>
+
+# Data formatting
+| index | 0 | 1 | 2 | 3 |
+|-------|---|---|---|---|
+|property|txt| x | y | v |
+
+- txt: image address in memory
+- x: x coordinate
+- y: y coordinate
+- v: visible, true if its value is anything other than 0

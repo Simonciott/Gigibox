@@ -19,20 +19,15 @@ namespace Gigi {
 		uint8_t width = 1;
 		uint8_t height = 1;
 
-		int paletteSize;
+		vector<Color> palette;
 
 		bool alpha;
-		int alphaColor;
+		Color alphaColor = Color::Green;
 
 		uint8_t* pixels;
 		size_t pixelsSize;
 
-		static Image Smiley;
-
 
 		Image(uint8_t* data8b, size_t size = 0);
-
-	private:
-		void processImageData(uint8_t* data);
 	};
 }
