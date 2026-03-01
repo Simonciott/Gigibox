@@ -1,3 +1,7 @@
+> [!IMPORTANT]
+> This project has been discontinued. There won't be any more changes to this project as long as it is usable.
+> Additional notes: The code interpretation is unstable, use with caution.
+
 # Introduction to Gigibox
 Gigibox is a (half) optimized graphical interface capable of (may change as this project gets updated):
 - Displaying the screen using two graphical buffers that switch per frame
@@ -14,4 +18,5 @@ As of now, Gigibox is extremely limited and barebones, only being able to displa
 There are features that will be added as soon as possible. These are:
 - Input support. The registers will expand to support limited input from either keyboard or controller
 - Slight code cleaning. The code has been rushed and is riddled with commented out and unoptimized code blocks
+
 - Image/Sprite rework. These were also rushed and need to be cleaned up (palette system needs to be moved to the sprites object and certain properties have to be joined)
